@@ -41,6 +41,20 @@ def art(name, w, h, key):
     return f"/assets/work/{fn}"
 
 
+def project_images(p):
+    """Real images in public/assets/work/<slug>/, or a generated fallback."""
+    d = os.path.join(PUB, "assets/work", p["slug"])
+    imgs = sorted(f for f in os.listdir(d) if f.endswith((".jpg", ".png", ".webp"))) if os.path.isdir(d) else []
+    if imgs:
+        return [f"/assets/work/{p['slug']}/{f}" for f in imgs]
+    return [art(p["fallback"], 1600, 1000, f"{p['slug']}-placeholder")]
+
+
+def project_video(p):
+    f = os.path.join(PUB, "assets/work", p["slug"], "walkthrough.mp4")
+    return f"/assets/work/{p['slug']}/walkthrough.mp4" if os.path.exists(f) else ""
+
+
 def stairs(frm, to, rev=False):
     cls = "stairs stairs--rev" if rev else "stairs"
     return f'<div class="{cls}" data-anim aria-hidden="true" style="--from:{frm};--to:{to}"><span></span><span></span><span></span></div>'
@@ -145,11 +159,11 @@ def write(rel, content):
 # ---------- pages ----------
 
 def page_home():
-    covers = {p["slug"]: art(p["cover"], 1200, 900, f"{p['slug']}-cover") for p in PROJECTS}
+    covers = {p["slug"]: project_images(p)[0] for p in PROJECTS}
     marquee_keys = ["identity", "ui", "poster", "system", "orbit", "mobile", "editorial", "pattern"]
     marquee = "".join(
-        f'<div class="marquee-item"><img src="{art(k, 800, 600, "marquee-" + k)}" alt="" loading="lazy" width="800" height="600"></div>'
-        for k in marquee_keys)
+        f'<div class="marquee-item"><img src="{covers[p["slug"]]}" alt="" loading="lazy" width="800" height="500"></div>'
+        for p in PROJECTS)
     socials = "".join(f'<a class="u-line" href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])
     about_img = art("pattern", 800, 600, "about")
 
@@ -159,8 +173,8 @@ def page_home():
 
     work = "".join(f"""
       <a class="work-item" href="/projects/{p['slug']}/" data-fade>
-        <div class="work-meta"><span>{e(p['date'])}</span><span>{e(p['name'])} — {e(p['summary'])}</span><span>View case</span></div>
-        <div class="work-media"><img src="{covers[p['slug']]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1200" height="900"><span class="view">View project</span></div>
+        <div class="work-meta"><span>{e(p['category'])}</span><span>{e(p['name'])} — {e(p['summary'])}</span><span>View case</span></div>
+        <div class="work-media"><img src="{covers[p['slug']]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1600" height="1000"><span class="view">View project</span></div>
       </a>""" for p in PROJECTS[:3])
 
     svcs = "".join(f"""
@@ -234,7 +248,7 @@ def page_home():
     <div class="container">
       <div class="sec-head">
         <div><span class="eyebrow">Selected work</span><h2 class="h2" data-reveal>Work that tells a story</h2></div>
-        <p data-fade>A selection of studio concept studies — how we take an idea from first question to a finished system.</p>
+        <p data-fade>Websites, Webflow builds and campaigns for venture firms, AI products and consumer brands.</p>
       </div>
       <div class="work-list">{work}</div>
       <div class="work-all"><a class="btn" href="/projects/">View all work<span class="btn-ico">{ARROW_UR}</span></a></div>
@@ -300,7 +314,7 @@ def page_home():
 def page_projects():
     cards = "".join(f"""
       <a class="proj-card" href="/projects/{p['slug']}/" data-fade>
-        <div class="work-media"><img src="/assets/work/{p['slug']}-cover.svg" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1200" height="900"><span class="view">View project</span></div>
+        <div class="work-media"><img src="{project_images(p)[0]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1600" height="1000"><span class="view">View project</span></div>
         <h3>{e(p['name'])}<span>{e(p['summary'])}</span></h3>
         <p>{e(p['card'])}</p>
       </a>""" for p in PROJECTS)
@@ -327,10 +341,14 @@ def page_projects():
 
 def page_project(i, p):
     nxt = PROJECTS[(i + 1) % len(PROJECTS)]
+    imgs = project_images(p)
+    video = project_video(p)
     gallery = "".join(
-        f'<div class="gallery-item"><img src="{art(g, 800, 1000, p["slug"] + "-g" + str(k))}" alt="{e(p["name"])} visual {k + 1}" loading="lazy" width="800" height="1000"></div>'
-        for k, g in enumerate(p["gallery"] + [p["cover"]]))
-    wide = art(p["wide"], 1600, 700, p["slug"] + "-wide")
+        f'<div class="gallery-item"><img src="{g}" alt="{e(p["name"])} — screen {k + 1}" loading="lazy" width="1600" height="1000"></div>'
+        for k, g in enumerate(imgs[1:]))
+    wide = (f'<video class="pd-video" src="{video}" poster="{imgs[0]}" autoplay muted loop playsinline preload="metadata" aria-label="{e(p["name"])} walkthrough"></video>'
+            if video else f'<img src="{imgs[-1]}" alt="{e(p["name"])}" loading="lazy" width="1600" height="1000">')
+    live = f'<a class="link-arrow u-line pd-live" href="{p["url"]}" target="_blank" rel="noopener">Visit live site {ARROW_UR}</a>' if p.get("url") else ""
     steps = "".join(f"<li><span><strong>{e(a)}:</strong> {e(b)}</span></li>" for a, b in p["steps"])
     body = f"""{nav()}
 <main id="main">
@@ -346,23 +364,24 @@ def page_project(i, p):
             <div><dt>Role</dt><dd>{e(p['role'])}</dd></div>
             <div><dt>Tools</dt><dd>{e(p['tools'])}</dd></div>
           </dl>
-          <span class="pd-tag">{e(p['date'])}</span>
+          <span class="pd-tag">{e(p['category'])}</span>
+          {live}
         </div>
-        <div class="pd-cover" data-fade><img src="/assets/work/{p['slug']}-cover.svg" alt="{e(p['name'])} cover" width="1200" height="900"></div>
+        <div class="pd-cover" data-fade><img src="{imgs[0]}" alt="{e(p['name'])} — {e(p['summary'])}" width="1600" height="1000"></div>
       </div>
 
-      <div class="gallery" data-slider data-multi tabindex="0" aria-label="Project gallery">
+      {"" if not gallery else f'''<div class="gallery" data-slider data-multi tabindex="0" aria-label="Project gallery">
         <span class="eyebrow">Visual journey</span>
         <div style="overflow:hidden;margin-top:1.5rem"><div class="gallery-track" data-track>{gallery}</div></div>
         <div class="slider-ctrl"><span class="slider-count" data-count></span>
           <div class="slider-arrows"><button data-prev aria-label="Previous">{ARROW_L}</button><button data-next aria-label="Next">{ARROW_R}</button></div></div>
-      </div>
+      </div>'''}
 
       <div class="pd-text">
         <h2 data-reveal>Behind the design</h2>
         <div data-fade><p>{e(p['approach'])}</p><ol>{steps}</ol></div>
       </div>
-      <div class="pd-wide" data-fade><img src="{wide}" alt="{e(p['name'])} wide visual" loading="lazy" width="1600" height="700"></div>
+      <div class="pd-wide" data-fade>{wide}</div>
       <div class="pd-text">
         <h2 data-reveal>The result</h2>
         <p data-fade>{e(p['result'])}</p>

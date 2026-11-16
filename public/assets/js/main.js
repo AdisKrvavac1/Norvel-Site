@@ -125,13 +125,14 @@
     const perView = () => {
       if (!root.hasAttribute("data-multi")) return 1;
       const w = items[0].getBoundingClientRect().width;
-      return Math.max(1, Math.round(track.getBoundingClientRect().width / w));
+      const n = Math.round(track.getBoundingClientRect().width / w);
+      return Number.isFinite(n) && n > 0 ? n : 1;
     };
     const go = to => {
       const max = Math.max(0, items.length - perView());
       i = Math.min(max, Math.max(0, to));
       const gap = parseFloat(getComputedStyle(track).gap) || 0;
-      const step = items[0].getBoundingClientRect().width + gap;
+      const step = (items[0].getBoundingClientRect().width || 0) + gap;
       track.style.transform = `translateX(${-i * step}px)`;
       items.forEach((it, k) => it.classList.toggle("is-active", k === i));
       if (prev) prev.disabled = i === 0;

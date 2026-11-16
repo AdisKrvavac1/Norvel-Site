@@ -169,3 +169,14 @@ COMPS = {
     "identity": comp_identity, "ui": comp_ui, "system": comp_system, "editorial": comp_editorial,
     "pattern": comp_pattern, "orbit": comp_orbit, "poster": comp_poster, "mobile": comp_mobile,
 }
+
+
+def comp_pending(w, h, seed=9, bg=INK2):
+    """Neutral placeholder while real project visuals are pending."""
+    b = grid_lines(w, h, 80, FOG, 0.05) + glow(w / 2, h / 2, w * 0.4, LIME, 0.10, f"gx{seed}")
+    b += mark(w / 2 - h * 0.09, h * 0.36, h * 0.2, INK3)
+    b += f'<text x="{w / 2}" y="{h * 0.72}" text-anchor="middle" font-family="Inter,Arial" font-size="{h * 0.035}" fill="{SLATE}" letter-spacing="4">VISUALS COMING SOON</text>'
+    return svg(w, h, b, bg)
+
+
+COMPS["pending"] = comp_pending
