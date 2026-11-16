@@ -21,8 +21,13 @@ No dependencies beyond Python 3.
 2. Add the custom domain `norvelstudio.com` in Render settings.
 3. 404s are served from `public/404.html` automatically.
 
+## Pages
+`/`, `/about/`, `/projects/` (+ 4 case studies), `/services/`, `/testimonials/`, `/contact/`, `404`.
+
 ## Before going live
 - Projects are **concept studies with placeholder artwork** — replace with real work in `build/data.py`
   and swap images in `public/assets/work/` (or point `cover`/`gallery` at your own files).
+- **Testimonials are samples** (marked with a visible “Sample” label) — replace `TESTIMONIALS` in `build/data.py` with real quotes and set `sample: False`.
+- **Contact form**: without an endpoint it opens the visitor’s email app pre-filled. To receive submissions directly, create a free Formspree or Web3Forms form and paste its URL into `CONTACT_PAGE["form_endpoint"]`.
 - Social links in `SITE["socials"]` point to the platform homepages — add your profile URLs.
 - Brand: lime `#c8f03c`, fog `#eef1f4`, ink `#0b0e13`. Logos in `public/assets/img/`.

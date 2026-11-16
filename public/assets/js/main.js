@@ -148,6 +148,43 @@
     go(0);
   });
 
+  /* Contact form: posts to an endpoint if configured, otherwise opens the email app */
+  $$("[data-form]").forEach(form => {
+    const status = $(".f-status", form);
+    const say = (msg, cls) => { status.textContent = msg; status.className = "f-status " + (cls || ""); };
+    form.addEventListener("submit", async ev => {
+      ev.preventDefault();
+      let ok = true;
+      $$("[required]", form).forEach(f => {
+        const bad = !f.value.trim() || (f.type === "email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.value));
+        f.closest(".field").classList.toggle("is-invalid", bad);
+        if (bad) ok = false;
+      });
+      if (!ok) return say("Please fill in the required fields.", "err");
+      if (form._gotcha && form._gotcha.value) return;
+      const data = new FormData(form);
+      const services = data.getAll("services").join(", ");
+      const endpoint = form.dataset.endpoint;
+      if (endpoint) {
+        say("Sending…");
+        try {
+          const r = await fetch(endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } });
+          if (!r.ok) throw new Error();
+          form.reset(); say("Thanks — we’ll be in touch within one business day.", "ok");
+        } catch (_) { say("Something went wrong. Email us at " + form.dataset.email, "err"); }
+        return;
+      }
+      const lines = [
+        `Name: ${data.get("name")}`, `Email: ${data.get("email")}`, `Company: ${data.get("company") || "-"}`,
+        `Services: ${services || "-"}`, `Budget: ${data.get("budget") || "-"}`, "", data.get("message")
+      ];
+      const subject = `New project inquiry — ${data.get("name")}`;
+      window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
+      say("Opening your email app…", "ok");
+    });
+    $$("input, textarea", form).forEach(f => f.addEventListener("input", () => f.closest(".field") && f.closest(".field").classList.remove("is-invalid")));
+  });
+
   /* Footer year */
   $$("[data-year]").forEach(el => (el.textContent = new Date().getFullYear()));
 })();

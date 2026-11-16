@@ -20,6 +20,7 @@ _logo_src = open(os.path.join(PUB, "assets/img/norvel-logo-fog.svg")).read()
 _groups = re.findall(r"<g>(.*?)</g>\s*<g>(.*)</g>\s*</svg>", _logo_src, re.S)[0]
 _mark_g = _groups[0].replace(' class="cls-1"', "")
 _word_g = re.sub(r"\s+", " ", _groups[1].replace(' class="cls-1"', ""))
+LOGO_MARK = f'<svg viewBox="0 0 463.94 500.74" fill="currentColor" aria-hidden="true">{_mark_g}</svg>'
 LOGO = ('<svg viewBox="0 0 1645.05 500.74" role="img" aria-label="Norvel Studio" fill="currentColor">'
         f'<g class="logo-mark">{_mark_g}</g><g>{_word_g}</g></svg>')
 
@@ -73,18 +74,15 @@ def head(title, desc, path):
 """
 
 
-def nav(home=False):
-    p = "" if home else "/"
+def nav(active=""):
+    links = [("about", "About", "/about/"), ("projects", f"Projects<sup>({len(PROJECTS)})</sup>", "/projects/"),
+             ("services", "Services", "/services/"), ("testimonials", "Testimonials", "/testimonials/")]
+    items = "".join(f'<a class="u-line{" is-active" if k == active else ""}" href="{u}"{" aria-current=\"page\"" if k == active else ""}>{t}</a>' for k, t, u in links)
     return f"""<header class="nav">
   <div class="container nav-inner">
     <a href="/" class="nav-logo" aria-label="Norvel — home">{LOGO}</a>
-    <nav class="nav-menu" aria-label="Main">
-      <a class="u-line" href="{p}#about">About</a>
-      <a class="u-line" href="/projects/">Work<sup>({len(PROJECTS)})</sup></a>
-      <a class="u-line" href="{p}#services">Services</a>
-      <a class="u-line" href="{p}#model">Model</a>
-    </nav>
-    <a class="nav-cta" href="mailto:{SITE['email']}"><span class="dot"></span>Start a project {ARROW}</a>
+    <nav class="nav-menu" aria-label="Main">{items}</nav>
+    <a class="nav-cta{" is-active" if active == "contact" else ""}" href="/contact/"><span class="dot"></span>Contact {ARROW}</a>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
   </div>
 </header>
@@ -97,7 +95,7 @@ def cta_section():
     <h2 class="h2" data-reveal>{e(CTA['title'])}</h2>
     <div class="cta-copy" data-fade>
       <p>{e(CTA['copy'])}</p>
-      <a class="btn" href="mailto:{SITE['email']}">{e(CTA['button'])}<span class="btn-ico">{ARROW_UR}</span></a>
+      <a class="btn" href="/contact/">{e(CTA['button'])}<span class="btn-ico">{ARROW_UR}</span></a>
     </div>
   </div>
 </section>
@@ -117,7 +115,7 @@ def footer():
     <div class="footer-brand">
       <a href="/" class="footer-logo" aria-label="Norvel — home">{LOGO}</a>
       <nav class="footer-links" aria-label="Footer">
-        <a href="/projects/">Work</a><a href="/#services">Services</a><a href="/#model">Model</a>{socials}
+        <a href="/about/">About</a><a href="/projects/">Projects</a><a href="/services/">Services</a><a href="/testimonials/">Testimonials</a><a href="/contact/">Contact</a>{socials}
       </nav>
     </div>
     <div class="footer-bottom">
@@ -175,7 +173,7 @@ def page_home():
           </article>""" for i, (t, d) in enumerate(MODEL["principles"]))
 
     personas = "".join(f"""
-      <a class="persona" href="mailto:{SITE['email']}?subject={e(t)}" data-fade>
+      <a class="persona" href="/contact/" data-fade>
         <div class="persona-top"><span>0{i + 1}</span><span>{i + 1} of {len(PERSONAS['items'])}</span></div>
         <h3>{e(h)}</h3>
         <p>{e(d)}</p>
@@ -188,7 +186,7 @@ def page_home():
             <div class="faq-a"><div><p>{e(a)}</p></div></div>
           </div>""" for q, a in FAQS["items"])
 
-    body = f"""{nav(home=True)}
+    body = f"""{nav()}
 <main id="main">
   <section class="hero">
     <div class="container">
@@ -198,8 +196,8 @@ def page_home():
         <h1 class="h1 hero-title"><span class="line">{e(HERO['line1'])}</span><span class="line"><span class="glow-word">{e(HERO['line2'])}</span></span></h1>
         <p class="hero-sub">{e(HERO['sub'])}</p>
         <div class="hero-actions">
-          <a class="btn" href="mailto:{SITE['email']}">Talk to Norvel<span class="btn-ico">{ARROW_UR}</span></a>
-          <a class="link-arrow u-line" href="#model">How we work {ARROW}</a>
+          <a class="btn" href="/contact/">Talk to Norvel<span class="btn-ico">{ARROW_UR}</span></a>
+          <a class="link-arrow u-line" href="/about/#process">How we work {ARROW}</a>
         </div>
       </div>
     </div>
@@ -222,6 +220,7 @@ def page_home():
         <div class="about-visual" data-fade><img src="{about_img}" alt="" loading="lazy" width="800" height="600"></div>
         <div class="about-rows">{rows}</div>
       </div>
+      <div class="work-all"><a class="btn" href="/about/">More about Norvel<span class="btn-ico">{ARROW_UR}</span></a></div>
     </div>
   </section>
   {stairs('var(--fog)', 'var(--ink)', rev=True)}
@@ -242,6 +241,7 @@ def page_home():
     <div class="container">
       <div class="sec-head sec-head--solo"><div><span class="eyebrow">{e(SERVICES['eyebrow'])}</span><h2 class="h2" data-reveal>{e(SERVICES['title'])}</h2></div></div>
       <div class="svc-list">{svcs}</div>
+      <div class="work-all"><a class="btn" href="/services/">Explore services<span class="btn-ico">{ARROW_UR}</span></a></div>
     </div>
   </section>
   {stairs('var(--fog)', 'var(--ink)', rev=True)}
@@ -316,6 +316,7 @@ def page_projects():
   {stairs('var(--fog)', 'var(--ink)', rev=True)}
 </main>
 """
+    body = body.replace(nav(), nav("projects"), 1)
     write("projects/index.html", head("Work", PROJECTS_PAGE["lead"], "/projects/") + body + footer())
 
 
@@ -373,6 +374,7 @@ def page_project(i, p):
   {stairs('var(--fog)', 'var(--ink)', rev=True)}
 </main>
 """
+    body = body.replace(nav(), nav("projects"), 1)
     write(f"projects/{p['slug']}/index.html", head(p["name"], p["intro"], f"/projects/{p['slug']}/") + body + footer())
 
 
@@ -397,10 +399,273 @@ def extras():
     write("assets/img/og.svg",
           f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#0b0e13"/>'
           f'<g transform="translate(120 245) scale(0.42)" fill="#eef1f4"><g fill="#c8f03c">{mark_g}</g>{_word_g}</g></svg>')
-    urls = ["/", "/projects/"] + [f"/projects/{p['slug']}/" for p in PROJECTS]
+    urls = ["/", "/about/", "/projects/", "/services/", "/testimonials/", "/contact/"] + [f"/projects/{p['slug']}/" for p in PROJECTS]
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + "".join(f"  <url><loc>{SITE['url']}{u}</loc></url>\n" for u in urls) + "</urlset>\n")
     write("robots.txt", f"User-agent: *\nAllow: /\nSitemap: {SITE['url']}/sitemap.xml\n")
+
+
+# ---------- shared section builders for inner pages ----------
+
+def page_hero(eyebrow, title, lead):
+    return f"""<section class="page-hero">
+    <div class="container">
+      <div class="sec-head" style="padding-bottom:clamp(3rem,6vw,5rem)">
+        <div><span class="eyebrow">{e(eyebrow)}</span><h1 class="h1" style="margin-top:1.5rem">{e(title)}</h1></div>
+        <p class="muted" data-fade>{e(lead)}</p>
+      </div>
+    </div>
+  </section>"""
+
+
+def end_cta():
+    return (stairs('var(--ink)', 'var(--fog)')
+            + cta_section().replace('class="section light cta"', 'class="section light cta" style="padding-top:calc(var(--section) - 96px)"')
+            + stairs('var(--fog)', 'var(--ink)', rev=True))
+
+
+def model_slider():
+    slides = "".join(f"""
+          <article class="slide">
+            <div><span class="slide-num">0{i + 1} — PRINCIPLE</span><h3>{e(t)}</h3></div>
+            <p>{e(d)}</p>
+          </article>""" for i, (t, d) in enumerate(MODEL["principles"]))
+    return f"""<div class="slider" data-slider tabindex="0" aria-label="Norvel principles">
+        <div class="slider-viewport"><div class="slider-track" data-track>{slides}
+        </div></div>
+        <div class="slider-ctrl">
+          <span class="slider-count" data-count></span>
+          <div class="slider-arrows"><button data-prev aria-label="Previous">{ARROW_L}</button><button data-next aria-label="Next">{ARROW_R}</button></div>
+        </div>
+      </div>"""
+
+
+def personas_grid():
+    return '<div class="personas">' + "".join(f"""
+      <a class="persona" href="/contact/" data-fade>
+        <div class="persona-top"><span>0{i + 1}</span><span>{i + 1} of {len(PERSONAS['items'])}</span></div>
+        <h3>{e(h)}</h3>
+        <p>{e(d)}</p>
+        <span class="link-arrow">That’s me {ARROW}</span>
+      </a>""" for i, (t, h, d) in enumerate(PERSONAS["items"])) + "</div>"
+
+
+def faq_block(items):
+    faqs = "".join(f"""
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">{e(q)}<span class="faq-ico" aria-hidden="true"></span></button>
+            <div class="faq-a"><div><p>{e(a)}</p></div></div>
+          </div>""" for q, a in items)
+    return f"""<section class="section" id="faq">
+    <div class="container">
+      <div class="sec-head sec-head--solo"><div><span class="eyebrow">{e(FAQS['eyebrow'])}</span><h2 class="h2" data-reveal>{e(FAQS['title'])}</h2></div></div>
+      <div class="faq-body">
+        <div class="faq-aside" data-fade><p>{e(FAQS['aside'])}</p><a class="link-arrow u-line" href="/contact/">Get in touch {ARROW}</a></div>
+        <div class="faq-list">{faqs}
+        </div>
+      </div>
+    </div>
+  </section>"""
+
+
+def testimonial_card(t, big=False):
+    tag = '<span class="t-sample">Sample</span>' if t.get("sample") else ""
+    return f"""<figure class="t-card{' t-card--big' if big else ''}" data-fade>
+        <div class="t-top"><span class="t-mark">{LOGO_MARK}</span>{tag}</div>
+        <blockquote>“{e(t['quote'])}”</blockquote>
+        <figcaption><strong>{e(t['name'])}</strong><span>{e(t['role'])}</span></figcaption>
+      </figure>"""
+
+
+# ---------- inner pages ----------
+
+def page_about():
+    A = ABOUT_PAGE
+    rows = "".join(
+        f'<div class="about-row" data-fade><p>{e(a)}</p><span class="stat">{e(b)}</span><small>{e(c)}</small></div>'
+        for a, b, c in PROBLEM["rows"])
+    steps = "".join(f"""
+        <li class="step" data-fade><span class="step-num">0{i + 1}</span><h3>{e(t)}</h3><p>{e(d)}</p></li>"""
+        for i, (t, d) in enumerate(A["process"]))
+    story = "".join(f"<p>{e(x)}</p>" for x in A["story"])
+    body = f"""{nav("about")}
+<main id="main">
+  {page_hero(A['eyebrow'], A['title'], A['lead'])}
+  <section class="container"><div class="pd-wide" data-fade><img src="{art('pattern', 1600, 700, 'about-wide')}" alt="" width="1600" height="700"></div></section>
+
+  <section class="section">
+    <div class="container story">
+      <h2 class="h2" data-reveal>{e(A['story_title'])}</h2>
+      <div class="story-copy" data-fade>{story}</div>
+    </div>
+  </section>
+
+  {stairs('var(--ink)', 'var(--fog)')}
+  <section class="section light" style="padding-top:calc(var(--section) - 96px)">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="eyebrow">{e(PROBLEM['eyebrow'])}</span>
+          <h2 class="h2 strike-wrap">{e(PROBLEM['title_a'])} <span class="strike">{e(PROBLEM['strike'])}</span> {e(PROBLEM['title_b'])}</h2></div>
+        <p data-fade>{e(PROBLEM['lead'])}</p>
+      </div>
+      <div class="about-body">
+        <div class="about-visual" data-fade><img src="/assets/work/about.svg" alt="" loading="lazy" width="800" height="600"></div>
+        <div class="about-rows">{rows}</div>
+      </div>
+    </div>
+  </section>
+  {stairs('var(--fog)', 'var(--ink)', rev=True)}
+
+  <section class="section" id="model" style="padding-top:calc(var(--section) - 96px)">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="eyebrow">{e(MODEL['eyebrow'])}</span><h2 class="h2" data-reveal>{e(MODEL['title'])}</h2></div>
+        <p data-fade>{e(MODEL['lead'])}</p>
+      </div>
+      {model_slider()}
+    </div>
+  </section>
+
+  <section class="section" id="process" style="padding-top:0">
+    <div class="container">
+      <div class="sec-head sec-head--solo"><div><span class="eyebrow">Process</span><h2 class="h2" data-reveal>{e(A['process_title'])}</h2></div></div>
+      <ol class="steps">{steps}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="eyebrow">{e(PERSONAS['eyebrow'])}</span><h2 class="h2" data-reveal>{e(PERSONAS['title'])}</h2></div>
+        <p data-fade>{e(PERSONAS['lead'])}</p>
+      </div>
+      {personas_grid()}
+    </div>
+  </section>
+  {end_cta()}
+</main>
+"""
+    write("about/index.html", head("About", A["lead"], "/about/") + body + footer())
+
+
+def page_services():
+    S = SERVICES_PAGE
+    pillars = "".join(f"""
+      <article class="pillar" id="{['brand', 'web-design', 'webflow'][i]}">
+        <div class="pillar-head" data-fade><span class="svc-num" style="padding:0">0{i + 1}</span><h2 class="h2">{e(t)}</h2></div>
+        <div class="pillar-media" data-fade><img src="{art(['identity', 'ui', 'mobile'][i], 1200, 900, 'service-' + str(i))}" alt="" loading="lazy" width="1200" height="900"></div>
+        <div class="pillar-copy" data-fade>
+          <p>{e(d)}</p>
+          <span class="eyebrow" style="margin-top:2rem">Deliverables</span>
+          <ul class="ticks">{''.join(f'<li>{e(x)}</li>' for x in items)}</ul>
+          <a class="link-arrow u-line" href="/contact/" style="margin-top:2rem">Start a {e(t.split(' ')[0].lower())} project {ARROW}</a>
+        </div>
+      </article>""" for i, (t, d, items) in enumerate(SERVICES["items"]))
+    engage = "".join(f"""
+        <div class="engage" data-fade>
+          <span class="persona-top"><span>0{i + 1}</span><span>Engagement</span></span>
+          <h3>{e(t)}</h3><p>{e(d)}</p>
+          <ul class="ticks">{''.join(f'<li>{e(x)}</li>' for x in items)}</ul>
+        </div>""" for i, (t, d, items) in enumerate(S["engagements"]))
+    body = f"""{nav("services")}
+<main id="main">
+  {page_hero(S['eyebrow'], S['title'], S['lead'])}
+  {stairs('var(--ink)', 'var(--fog)')}
+  <section class="section light pillars" style="padding-top:calc(var(--section) - 96px)">
+    <div class="container">{pillars}
+    </div>
+  </section>
+  {stairs('var(--fog)', 'var(--ink)', rev=True)}
+  <section class="section" style="padding-top:calc(var(--section) - 96px)">
+    <div class="container">
+      <div class="sec-head sec-head--solo"><div><span class="eyebrow">Engagements</span><h2 class="h2" data-reveal>{e(S['engage_title'])}</h2></div></div>
+      <div class="personas">{engage}</div>
+    </div>
+  </section>
+  {faq_block(FAQS['items'])}
+  {end_cta()}
+</main>
+"""
+    write("services/index.html", head("Services", S["lead"], "/services/") + body + footer())
+
+
+def page_testimonials():
+    T = TESTIMONIALS_PAGE
+    slides = "".join(f'<div class="t-slide">{testimonial_card(t, big=True)}</div>' for t in TESTIMONIALS)
+    grid = "".join(testimonial_card(t) for t in TESTIMONIALS)
+    body = f"""{nav("testimonials")}
+<main id="main">
+  {page_hero(T['eyebrow'], T['title'], T['lead'])}
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="slider" data-slider tabindex="0" aria-label="Testimonials">
+        <div class="slider-viewport"><div class="slider-track" data-track>{slides}</div></div>
+        <div class="slider-ctrl"><span class="slider-count" data-count></span>
+          <div class="slider-arrows"><button data-prev aria-label="Previous">{ARROW_L}</button><button data-next aria-label="Next">{ARROW_R}</button></div></div>
+      </div>
+    </div>
+  </section>
+  {stairs('var(--ink)', 'var(--fog)')}
+  <section class="section light" style="padding-top:calc(var(--section) - 96px)">
+    <div class="container">
+      <div class="sec-head"><div><span class="eyebrow">All feedback</span><h2 class="h2" data-reveal>In their words</h2></div>
+        <p data-fade>Worked with us? We’d love to hear from you — every review helps another team find the right partner.</p></div>
+      <div class="t-grid">{grid}</div>
+    </div>
+  </section>
+  {stairs('var(--fog)', 'var(--ink)', rev=True)}
+  <section class="section" style="padding-top:calc(var(--section) - 96px)">
+    <div class="container">
+      <div class="sec-head"><div><span class="eyebrow">{e(PERSONAS['eyebrow'])}</span><h2 class="h2" data-reveal>{e(PERSONAS['title'])}</h2></div><p data-fade>{e(PERSONAS['lead'])}</p></div>
+      {personas_grid()}
+    </div>
+  </section>
+  {end_cta()}
+</main>
+"""
+    write("testimonials/index.html", head("Testimonials", T["lead"], "/testimonials/") + body + footer())
+
+
+def page_contact():
+    C = CONTACT_PAGE
+    chips = "".join(f'<label class="chip"><input type="checkbox" name="services" value="{e(x)}"><span>{e(x)}</span></label>' for x in C["services"])
+    budgets = "".join(f'<label class="chip"><input type="radio" name="budget" value="{e(x)}"><span>{e(x)}</span></label>' for x in C["budgets"])
+    details = "".join(f'<div><dt>{e(a)}</dt><dd>{f"<a class=u-line href=mailto:{b}>{b}</a>" if "@" in b else e(b)}</dd></div>' for a, b in C["details"])
+    socials = "".join(f'<a class="u-line" href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])
+    action = C["form_endpoint"] or f"mailto:{SITE['email']}"
+    body = f"""{nav("contact")}
+<main id="main">
+  <section class="page-hero">
+    <div class="container contact-grid">
+      <div class="contact-aside">
+        <span class="eyebrow">{e(C['eyebrow'])}</span>
+        <h1 class="h1" style="margin-top:1.5rem">{e(C['title'])}</h1>
+        <p class="muted" style="margin-top:2rem;max-width:420px;line-height:1.5">{e(C['lead'])}</p>
+        <dl class="pd-facts">{details}</dl>
+        <div class="socials" style="margin-top:2.5rem">{socials}</div>
+      </div>
+      <form class="contact-form" action="{action}" method="post" data-form data-email="{SITE['email']}" data-endpoint="{e(C['form_endpoint'])}" novalidate>
+        <div class="f-row">
+          <label class="field"><span>Name *</span><input name="name" required autocomplete="name" placeholder="Your name"></label>
+          <label class="field"><span>Email *</span><input name="email" type="email" required autocomplete="email" placeholder="you@company.com"></label>
+        </div>
+        <label class="field"><span>Company</span><input name="company" autocomplete="organization" placeholder="Company or project name"></label>
+        <fieldset class="field"><legend>What do you need?</legend><div class="chips">{chips}</div></fieldset>
+        <fieldset class="field"><legend>Budget</legend><div class="chips">{budgets}</div></fieldset>
+        <label class="field"><span>Tell us about the project *</span><textarea name="message" rows="5" required placeholder="Goals, timeline, links — anything that helps."></textarea></label>
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="sr-only" aria-hidden="true">
+        <div class="f-foot">
+          <button class="btn" type="submit">Send message<span class="btn-ico">{ARROW_UR}</span></button>
+          <p class="f-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+  {faq_block(FAQS['items'][:4])}
+</main>
+"""
+    write("contact/index.html", head("Contact", C["lead"], "/contact/") + body + footer())
 
 
 if __name__ == "__main__":
@@ -409,6 +674,10 @@ if __name__ == "__main__":
     page_projects()
     for i, p in enumerate(PROJECTS):
         page_project(i, p)
+    page_about()
+    page_services()
+    page_testimonials()
+    page_contact()
     page_404()
     extras()
     print("Built:", sum(len(f) for _, _, f in os.walk(PUB)), "files in", PUB)

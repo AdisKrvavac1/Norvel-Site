@@ -103,7 +103,7 @@ CTA = {
 }
 
 FOOTER = {
-    "title_a": "Available for new projects",
+    "title_a": "Open for new projects",
     "title_b": "& partnerships",
     "copy": "Reach out with your idea — let’s build something remarkable.",
 }
@@ -192,3 +192,63 @@ PROJECTS = [
         "result": "A calm, fast editorial site where every story gets a bespoke feel from one flexible template.",
     },
 ]
+
+# ---------------------------------------------------------------- inner pages
+
+ABOUT_PAGE = {
+    "eyebrow": "About Norvel",
+    "title": "A studio built for how work gets done now",
+    "lead": "Norvel is an independent design & technology studio. We bring brand, web design and Webflow development under one senior team — and run the whole process on AI, so you get more thinking, faster, without losing the craft.",
+    "story_title": "Why Norvel exists",
+    "story": [
+        "Great brands and websites still need taste, judgment and care. What they no longer need is months of meetings, layers of account managers and three vendors who never talk to each other.",
+        "So we built a studio around a simple idea: keep the senior people close to the work, and let AI handle the heavy lifting. The result is a tighter loop between your idea and a finished, live product.",
+    ],
+    "process_title": "How we work",
+    "process": [
+        ("Discover", "We learn your business, your audience and what success looks like — usually in a single focused workshop."),
+        ("Explore", "AI-assisted research and rapid exploration put many directions on the table in days, not weeks."),
+        ("Design", "A senior designer takes the strongest direction and turns it into a precise, considered system."),
+        ("Build", "We build in Webflow with clean structure, motion and a CMS your team can actually use."),
+        ("Launch & grow", "We ship, measure and keep improving — as a one-off project or an ongoing partner."),
+    ],
+}
+
+SERVICES_PAGE = {
+    "eyebrow": "Services",
+    "title": "Three pillars, one team",
+    "lead": "Brand, web design and Webflow development are equal parts of what we do. Take one, or let us handle all three end to end.",
+    "engage_title": "Ways to work with us",
+    "engagements": [
+        ("Project", "A defined scope with a clear timeline — a new identity, a website or a launch.", ["Fixed scope & timeline", "Weekly check-ins", "Full handover at launch"]),
+        ("Retainer", "A set number of design and development hours every month, for teams that ship continuously.", ["Priority turnaround", "Monthly planning", "Pause or scale anytime"]),
+        ("Fractional team", "A senior creative and Webflow team on call, embedded in your workflow.", ["Dedicated lead", "Works in your tools", "Strategy + execution"]),
+    ],
+}
+
+TESTIMONIALS_PAGE = {
+    "eyebrow": "Testimonials",
+    "title": "What clients say",
+    "lead": "Feedback from the people we work with. We’re a new studio — this page grows with every project we ship.",
+}
+
+# SAMPLE CONTENT — replace with real client quotes before launch.
+# While "sample" is True, a visible "Sample" label is shown on the card.
+TESTIMONIALS = [
+    {"quote": "Clear communication, thoughtful design and a result beyond what we expected. It felt like having an in-house team.", "name": "Client name", "role": "Founder, Company", "sample": True},
+    {"quote": "They explored more directions in a week than our last agency did in a month — and the final identity is exactly us.", "name": "Client name", "role": "Marketing Lead, Company", "sample": True},
+    {"quote": "Our Webflow site is fast, easy to update and finally looks like the product we’re building.", "name": "Client name", "role": "Head of Growth, Company", "sample": True},
+    {"quote": "Brand, website and launch handled by one team. No hand-offs, no surprises, just steady progress.", "name": "Client name", "role": "CEO, Company", "sample": True},
+]
+
+CONTACT_PAGE = {
+    "eyebrow": "Contact",
+    "title": "Let’s talk about your project",
+    "lead": "Tell us what you’re working on. We reply within one business day with next steps — usually a short call and a rough plan.",
+    # Paste a Formspree / Web3Forms endpoint here to receive submissions directly.
+    # Left empty, the form opens the visitor's email app with everything pre-filled.
+    "form_endpoint": "",
+    "services": ["Brand & Identity", "Web Design", "Webflow Development", "Not sure yet"],
+    "budgets": ["Under $5k", "$5k – $15k", "$15k – $40k", "$40k+"],
+    "details": [("Email", "hello@norvelstudio.com"), ("Response time", "Within one business day"), ("Location", "Remote-first · US & Europe")],
+}
