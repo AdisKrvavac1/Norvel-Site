@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://norvelstudio.com/sitemap.xml
