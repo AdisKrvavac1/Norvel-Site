@@ -46,6 +46,11 @@ def stairs(frm, to, rev=False):
     return f'<div class="{cls}" data-anim aria-hidden="true" style="--from:{frm};--to:{to}"><span></span><span></span><span></span></div>'
 
 
+def _ver(rel):
+    import hashlib
+    return hashlib.md5(open(os.path.join(PUB, rel), "rb").read()).hexdigest()[:8]
+
+
 def head(title, desc, path):
     full = f"{title} — {SITE['name']}" if title else f"{SITE['name']} — {SITE['tagline']}"
     return f"""<!DOCTYPE html>
@@ -67,7 +72,7 @@ def head(title, desc, path):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/assets/css/style.css?v={_ver('assets/css/style.css')}">
 </head>
 <body>
 <a class="sr-only" href="#main">Skip to content</a>
@@ -124,7 +129,7 @@ def footer():
     </div>
   </div>
 </footer>
-<script src="/assets/js/main.js" defer></script>
+<script src="/assets/js/main.js?v={_ver('assets/js/main.js')}" defer></script>
 </body>
 </html>
 """
