@@ -79,8 +79,13 @@ def head(title, desc, path):
 <meta property="og:title" content="{e(full)}">
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:url" content="{SITE['url']}{path}">
-<meta property="og:image" content="{SITE['url']}/assets/img/og.svg">
+<meta property="og:image" content="{SITE['url']}/assets/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Norvel — Senior design. Shipped at AI speed.">
+<meta property="og:site_name" content="Norvel Studio">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{SITE['url']}/assets/img/og.png">
 <meta name="theme-color" content="#0b0e13">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -172,10 +177,18 @@ def page_home():
         for a, b, c in PROBLEM["rows"])
 
     work = "".join(f"""
-      <a class="work-item" href="/projects/{p['slug']}/" data-fade>
-        <div class="work-meta"><span>{e(p['category'])}</span><span>{e(p['name'])} — {e(p['summary'])}</span><span>View case</span></div>
-        <div class="work-media"><img src="{covers[p['slug']]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1600" height="1000"><span class="view">View project</span></div>
-      </a>""" for p in PROJECTS[:3])
+      <article class="case" data-fade>
+        <a class="case-media" href="/projects/{p['slug']}/" aria-label="{e(p['name'])} case study">
+          <img src="{covers[p['slug']]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1960" height="1215">
+          <span class="view">View case study</span>
+        </a>
+        <div class="container case-meta">
+          <span class="case-num">0{n + 1}</span>
+          <div><h3>{e(p['name'])}</h3><p>{e(p['summary'])}</p></div>
+          <span class="case-cat">{e(p['category'])}</span>
+          <a class="link-arrow u-line" href="/projects/{p['slug']}/">View case study {ARROW}</a>
+        </div>
+      </article>""" for n, p in enumerate(PROJECTS[:3]))
 
     svcs = "".join(f"""
       <div class="svc{' is-open' if i == 0 else ''}">
@@ -250,9 +263,9 @@ def page_home():
         <div><span class="eyebrow">Selected work</span><h2 class="h2" data-reveal>Work that tells a story</h2></div>
         <p data-fade>Websites, Webflow builds and campaigns for venture firms, AI products and consumer brands.</p>
       </div>
-      <div class="work-list">{work}</div>
-      <div class="work-all"><a class="btn" href="/projects/">View all work<span class="btn-ico">{ARROW_UR}</span></a></div>
     </div>
+    <div class="case-list">{work}</div>
+    <div class="container work-all"><a class="btn" href="/projects/">View all {len(PROJECTS)} projects<span class="btn-ico">{ARROW_UR}</span></a></div>
   </section>
 
   {stairs('var(--ink)', 'var(--fog)')}
@@ -313,11 +326,18 @@ def page_home():
 
 def page_projects():
     cards = "".join(f"""
-      <a class="proj-card" href="/projects/{p['slug']}/" data-fade>
-        <div class="work-media"><img src="{project_images(p)[0]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1600" height="1000"><span class="view">View project</span></div>
-        <h3>{e(p['name'])}<span>{e(p['summary'])}</span></h3>
-        <p>{e(p['card'])}</p>
-      </a>""" for p in PROJECTS)
+      <article class="case" data-fade>
+        <a class="case-media" href="/projects/{p['slug']}/" aria-label="{e(p['name'])} case study">
+          <img src="{project_images(p)[0]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1960" height="1215">
+          <span class="view">View case study</span>
+        </a>
+        <div class="container case-meta">
+          <span class="case-num">{n + 1:02d}</span>
+          <div><h3>{e(p['name'])}</h3><p>{e(p['card'])}</p></div>
+          <span class="case-cat">{e(p['category'])}</span>
+          <a class="link-arrow u-line" href="/projects/{p['slug']}/">View case study {ARROW}</a>
+        </div>
+      </article>""" for n, p in enumerate(PROJECTS))
     body = f"""{nav()}
 <main id="main">
   <section class="page-hero">
@@ -326,8 +346,8 @@ def page_projects():
         <div><span class="eyebrow">Work</span><h1 class="h1">{e(PROJECTS_PAGE['title'])}</h1></div>
         <p class="muted" data-fade>{e(PROJECTS_PAGE['lead'])}</p>
       </div>
-      <div class="proj-grid"><span class="proj-label">Projects ({len(PROJECTS)})</span>{cards}
-      </div>
+    </div>
+    <div class="case-list case-list--page">{cards}
     </div>
   </section>
   {stairs('var(--ink)', 'var(--fog)')}
@@ -343,11 +363,11 @@ def page_project(i, p):
     nxt = PROJECTS[(i + 1) % len(PROJECTS)]
     imgs = project_images(p)
     video = project_video(p)
-    gallery = "".join(
-        f'<div class="gallery-item"><img src="{g}" alt="{e(p["name"])} — screen {k + 1}" loading="lazy" width="1600" height="1000"></div>'
-        for k, g in enumerate(imgs[1:]))
-    wide = (f'<video class="pd-video" src="{video}" poster="{imgs[0]}" autoplay muted loop playsinline preload="metadata" aria-label="{e(p["name"])} walkthrough"></video>'
-            if video else f'<img src="{imgs[-1]}" alt="{e(p["name"])}" loading="lazy" width="1600" height="1000">')
+    shots = [f'<figure class="pd-shot" data-fade><img src="{g}" alt="{e(p["name"])} — screen {k + 2}" loading="lazy" width="1960" height="1215"></figure>'
+             for k, g in enumerate(imgs[1:])]
+    if video:
+        shots.insert(0, f'<figure class="pd-shot pd-shot--video" data-fade><video src="{video}" poster="{imgs[0]}" autoplay muted loop playsinline preload="metadata" aria-label="{e(p["name"])} walkthrough"></video></figure>')
+    first, rest = "".join(shots[:1]), "".join(shots[1:])
     live = f'<a class="link-arrow u-line pd-live" href="{p["url"]}" target="_blank" rel="noopener">Visit live site {ARROW_UR}</a>' if p.get("url") else ""
     steps = "".join(f"<li><span><strong>{e(a)}:</strong> {e(b)}</span></li>" for a, b in p["steps"])
     body = f"""{nav()}
@@ -356,32 +376,31 @@ def page_project(i, p):
     <div class="container">
       <span class="eyebrow">{e(p['summary'])}</span>
       <h1 class="h1" style="margin-top:1.5rem">{e(p['name'])}</h1>
+    </div>
+    <figure class="pd-hero-media" data-fade><img src="{imgs[0]}" alt="{e(p['name'])} — {e(p['summary'])}" width="1960" height="1215"></figure>
+    <div class="container">
       <div class="pd-top">
+        <p class="pd-intro">{e(p['intro'])}</p>
         <div>
-          <p class="pd-intro">{e(p['intro'])}</p>
           <dl class="pd-facts">
             <div><dt>Client</dt><dd>{e(p['client'])}</dd></div>
             <div><dt>Role</dt><dd>{e(p['role'])}</dd></div>
             <div><dt>Tools</dt><dd>{e(p['tools'])}</dd></div>
+            <div><dt>Category</dt><dd>{e(p['category'])}</dd></div>
           </dl>
-          <span class="pd-tag">{e(p['category'])}</span>
           {live}
         </div>
-        <div class="pd-cover" data-fade><img src="{imgs[0]}" alt="{e(p['name'])} — {e(p['summary'])}" width="1600" height="1000"></div>
       </div>
-
-      {"" if not gallery else f'''<div class="gallery" data-slider data-multi tabindex="0" aria-label="Project gallery">
-        <span class="eyebrow">Visual journey</span>
-        <div style="overflow:hidden;margin-top:1.5rem"><div class="gallery-track" data-track>{gallery}</div></div>
-        <div class="slider-ctrl"><span class="slider-count" data-count></span>
-          <div class="slider-arrows"><button data-prev aria-label="Previous">{ARROW_L}</button><button data-next aria-label="Next">{ARROW_R}</button></div></div>
-      </div>'''}
-
+    </div>
+    <div class="pd-shots">{first}</div>
+    <div class="container">
       <div class="pd-text">
         <h2 data-reveal>Behind the design</h2>
         <div data-fade><p>{e(p['approach'])}</p><ol>{steps}</ol></div>
       </div>
-      <div class="pd-wide" data-fade>{wide}</div>
+    </div>
+    <div class="pd-shots">{rest}</div>
+    <div class="container">
       <div class="pd-text">
         <h2 data-reveal>The result</h2>
         <p data-fade>{e(p['result'])}</p>
@@ -420,9 +439,6 @@ def extras():
     mark_g = _mark_g
     write("assets/img/favicon.svg",
           f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -40 584 580"><rect x="-60" y="-40" width="584" height="580" rx="110" fill="#0b0e13"/><g fill="#c8f03c">{mark_g}</g></svg>')
-    write("assets/img/og.svg",
-          f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#0b0e13"/>'
-          f'<g transform="translate(120 245) scale(0.42)" fill="#eef1f4"><g fill="#c8f03c">{mark_g}</g>{_word_g}</g></svg>')
     urls = ["/", "/about/", "/projects/", "/services/", "/testimonials/", "/contact/"] + [f"/projects/{p['slug']}/" for p in PROJECTS]
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + "".join(f"  <url><loc>{SITE['url']}{u}</loc></url>\n" for u in urls) + "</urlset>\n")

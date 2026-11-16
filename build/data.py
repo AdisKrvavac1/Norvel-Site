@@ -3,7 +3,7 @@
 SITE = {
     "name": "Norvel",
     "url": "https://norvelstudio.com",
-    "email": "hello@norvelstudio.com",
+    "email": "adis@norvelstudio.com",
     "tagline": "Design & technology studio",
     "description": "Norvel is an independent design & technology studio. Senior design judgment, AI-accelerated delivery — brand identity, web design and Webflow development.",
     "socials": [("LinkedIn", "https://www.linkedin.com/"), ("Instagram", "https://www.instagram.com/"), ("X", "https://x.com/")],
@@ -321,5 +321,5 @@ CONTACT_PAGE = {
     "form_endpoint": "",
     "services": ["Brand & Identity", "Web Design", "Webflow Development", "Not sure yet"],
     "budgets": ["Under $5k", "$5k – $15k", "$15k – $40k", "$40k+"],
-    "details": [("Email", "hello@norvelstudio.com"), ("Response time", "Within one business day"), ("Location", "Remote-first · US & Europe")],
+    "details": [("Email", "adis@norvelstudio.com"), ("Response time", "Within one business day"), ("Location", "Remote-first · US & Europe")],
 }
