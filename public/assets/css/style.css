@@ -548,3 +548,4 @@ main { overflow-x: clip; }
   .case-cat, .case-meta .link-arrow { grid-column: 1; }
   .case-num { padding-top: 0; }
 }
+picture { display: contents; }

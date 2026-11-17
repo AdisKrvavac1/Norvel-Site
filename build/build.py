@@ -41,10 +41,115 @@ def art(name, w, h, key):
     return f"/assets/work/{fn}"
 
 
+import json
+
+SEO_HOME_TITLE = "Norvel — Web Design, Webflow Development & Branding Studio"
+ORG_ID = SITE["url"] + "/#organization"
+
+
+def org_node():
+    return {
+        "@type": ["Organization", "ProfessionalService"],
+        "@id": ORG_ID,
+        "name": "Norvel Studio",
+        "alternateName": "Norvel",
+        "url": SITE["url"] + "/",
+        "logo": {"@type": "ImageObject", "url": SITE["url"] + "/assets/img/norvel-logo-lime.svg"},
+        "image": SITE["url"] + "/assets/img/og.png",
+        "email": SITE["email"],
+        "description": SITE["description"],
+        "slogan": "Senior design. Shipped at AI speed.",
+        "areaServed": ["United States", "Europe"],
+        "knowsAbout": ["Web design", "Webflow development", "Brand identity", "UX/UI design",
+                       "Design systems", "Motion design", "AI-assisted design"],
+        "contactPoint": {"@type": "ContactPoint", "contactType": "sales", "email": SITE["email"],
+                         "url": SITE["url"] + "/contact/", "availableLanguage": ["English", "Bosnian"]},
+        "hasOfferCatalog": {"@type": "OfferCatalog", "name": "Design & development services",
+                            "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": t, "description": d}}
+                                                for t, d, _ in SERVICES["items"]]},
+    }
+
+
+def jsonld(path, title, desc, extra, crumbs):
+    url = SITE["url"] + path
+    graph = [
+        org_node(),
+        {"@type": "WebSite", "@id": SITE["url"] + "/#website", "url": SITE["url"] + "/", "name": "Norvel Studio",
+         "publisher": {"@id": ORG_ID}, "inLanguage": "en"},
+        {"@type": "WebPage", "@id": url + "#webpage", "url": url, "name": title, "description": desc,
+         "isPartOf": {"@id": SITE["url"] + "/#website"}, "about": {"@id": ORG_ID}, "inLanguage": "en"},
+    ]
+    if crumbs:
+        items = [("Home", "/")] + crumbs
+        graph.append({"@type": "BreadcrumbList", "@id": url + "#breadcrumb", "itemListElement": [
+            {"@type": "ListItem", "position": i + 1, "name": n, "item": SITE["url"] + u} for i, (n, u) in enumerate(items)]})
+    graph += extra
+    data = json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, separators=(",", ":"))
+    return f'<script type="application/ld+json">{data.replace("</", "<\\/")}</script>'
+
+
+def faq_ld(items, path):
+    return {"@type": "FAQPage", "@id": SITE["url"] + path + "#faq", "mainEntity": [
+        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in items]}
+
+
+def project_ld(p):
+    url = f"{SITE['url']}/projects/{p['slug']}/"
+    node = {"@type": "CreativeWork", "@id": url + "#work", "name": f"{p['name']} — {p['summary']}",
+            "url": url, "description": p["card"], "creator": {"@id": ORG_ID},
+            "about": {"@type": "Organization", "name": p["client"]},
+            "genre": p["category"], "image": [SITE["url"] + i for i in project_images(p) if i.startswith("/")]}
+    if p.get("url"):
+        node["sameAs"] = p["url"]
+    return node
+
+
+# ---------- responsive images (WebP + JPG fallback) ----------
+from PIL import Image as _PIL
+WIDTHS = (800, 1400, 2000)
+
+
+def responsive(src):
+    """Create WebP variants for a /assets/work/... jpg. Returns (webp_srcset, jpg_srcset, w, h)."""
+    path = os.path.join(PUB, src.lstrip("/"))
+    if not src.endswith(".jpg") or not os.path.exists(path):
+        return None
+    im = _PIL.open(path).convert("RGB")
+    W, H = im.size
+    base = path[:-4]
+    webp, jpg = [], []
+    for w in WIDTHS:
+        if w > W:
+            continue
+        h = round(H * w / W)
+        wp, jp = f"{base}-{w}.webp", f"{base}-{w}.jpg"
+        if not os.path.exists(wp):
+            im.resize((w, h), _PIL.LANCZOS).save(wp, "WEBP", quality=80, method=6)
+        if not os.path.exists(jp):
+            im.resize((w, h), _PIL.LANCZOS).save(jp, quality=82, optimize=True, progressive=True)
+        webp.append(f"{src[:-4]}-{w}.webp {w}w"); jpg.append(f"{src[:-4]}-{w}.jpg {w}w")
+    full_wp = base + ".webp"
+    if not os.path.exists(full_wp):
+        im.save(full_wp, "WEBP", quality=80, method=6)
+    webp.append(f"{src[:-4]}.webp {W}w"); jpg.append(f"{src} {W}w")
+    return ", ".join(webp), ", ".join(jpg), W, H
+
+
+def pic(src, alt, sizes="100vw", lazy=True, cls=""):
+    r = responsive(src)
+    load = ' loading="lazy" decoding="async"' if lazy else ' fetchpriority="high" decoding="async"'
+    c = f' class="{cls}"' if cls else ""
+    if not r:
+        return f'<img src="{src}" alt="{e(alt)}"{load}{c}>'
+    webp, jpg, W, H = r
+    return (f'<picture><source type="image/webp" srcset="{webp}" sizes="{sizes}">'
+            f'<img src="{src}" srcset="{jpg}" sizes="{sizes}" alt="{e(alt)}" width="{W}" height="{H}"{load}{c}></picture>')
+
+
 def project_images(p):
     """Real images in public/assets/work/<slug>/, or a generated fallback."""
     d = os.path.join(PUB, "assets/work", p["slug"])
-    imgs = sorted(f for f in os.listdir(d) if f.endswith((".jpg", ".png", ".webp"))) if os.path.isdir(d) else []
+    imgs = sorted(f for f in os.listdir(d) if re.fullmatch(r"\d+\.(jpg|png)", f)) if os.path.isdir(d) else []
     if imgs:
         return [f"/assets/work/{p['slug']}/{f}" for f in imgs]
     return [art(p["fallback"], 1600, 1000, f"{p['slug']}-placeholder")]
@@ -65,8 +170,11 @@ def _ver(rel):
     return hashlib.md5(open(os.path.join(PUB, rel), "rb").read()).hexdigest()[:8]
 
 
-def head(title, desc, path):
-    full = f"{title} — {SITE['name']}" if title else f"{SITE['name']} — {SITE['tagline']}"
+def head(title, desc, path, ld=None, crumbs=None, og_type="website", og_image=None):
+    full = title or SEO_HOME_TITLE
+    desc = desc if len(desc) <= 158 else desc[:155].rsplit(" ", 1)[0] + "…"
+    ld_html = jsonld(path, title or full, desc, ld or [], crumbs)
+    og_img = og_image or f"{SITE['url']}/assets/img/og.png"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,23 +183,25 @@ def head(title, desc, path):
 <title>{e(full)}</title>
 <meta name="description" content="{e(desc)}">
 <link rel="canonical" href="{SITE['url']}{path}">
-<meta property="og:type" content="website">
+<meta property="og:type" content="{og_type}">
 <meta property="og:title" content="{e(full)}">
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:url" content="{SITE['url']}{path}">
-<meta property="og:image" content="{SITE['url']}/assets/img/og.png">
+<meta property="og:image" content="{og_img}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Norvel — Senior design. Shipped at AI speed.">
 <meta property="og:site_name" content="Norvel Studio">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="{SITE['url']}/assets/img/og.png">
+<meta name="twitter:image" content="{og_img}">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#0b0e13">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/style.css?v={_ver('assets/css/style.css')}">
+{ld_html}
 </head>
 <body>
 <a class="sr-only" href="#main">Skip to content</a>
@@ -167,7 +277,7 @@ def page_home():
     covers = {p["slug"]: project_images(p)[0] for p in PROJECTS}
     marquee_keys = ["identity", "ui", "poster", "system", "orbit", "mobile", "editorial", "pattern"]
     marquee = "".join(
-        f'<div class="marquee-item"><img src="{covers[p["slug"]]}" alt="" loading="lazy" width="800" height="500"></div>'
+        f'<div class="marquee-item">{pic(covers[p["slug"]], p["name"] + " — " + p["summary"], "300px")}</div>'
         for p in PROJECTS)
     socials = "".join(f'<a class="u-line" href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])
     about_img = art("pattern", 800, 600, "about")
@@ -179,7 +289,7 @@ def page_home():
     work = "".join(f"""
       <article class="case" data-fade>
         <a class="case-media" href="/projects/{p['slug']}/" aria-label="{e(p['name'])} case study">
-          <img src="{covers[p['slug']]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1960" height="1215">
+          {pic(covers[p['slug']], p['name'] + " — " + p['summary'] + " by Norvel")}
           <span class="view">View case study</span>
         </a>
         <div class="container case-meta">
@@ -321,14 +431,14 @@ def page_home():
   {stairs('var(--fog)', 'var(--ink)', rev=True)}
 </main>
 """
-    write("index.html", head("", SITE["description"], "/") + body + footer())
+    write("index.html", head("", SITE["description"], "/", ld=[faq_ld(FAQS["items"], "/")]) + body + footer())
 
 
 def page_projects():
     cards = "".join(f"""
       <article class="case" data-fade>
         <a class="case-media" href="/projects/{p['slug']}/" aria-label="{e(p['name'])} case study">
-          <img src="{project_images(p)[0]}" alt="{e(p['name'])} — {e(p['summary'])}" loading="lazy" width="1960" height="1215">
+          {pic(project_images(p)[0], p['name'] + " — " + p['summary'] + " by Norvel", lazy=n > 0)}
           <span class="view">View case study</span>
         </a>
         <div class="container case-meta">
@@ -356,14 +466,18 @@ def page_projects():
 </main>
 """
     body = body.replace(nav(), nav("projects"), 1)
-    write("projects/index.html", head("Work", PROJECTS_PAGE["lead"], "/projects/") + body + footer())
+    write("projects/index.html", head("Work — Website Design & Webflow Case Studies | Norvel",
+              "Case studies by Norvel: website design and Webflow builds for HP, Lightspeed, a16z, Gyde, Playground, Lagunitas, Hello Cake and the GTM10 Awards.",
+              "/projects/", crumbs=[("Work", "/projects/")],
+              ld=[{"@type": "ItemList", "@id": SITE["url"] + "/projects/#list", "itemListElement": [
+                  {"@type": "ListItem", "position": i + 1, "url": f"{SITE['url']}/projects/{q['slug']}/", "name": q["name"]} for i, q in enumerate(PROJECTS)]}]) + body + footer())
 
 
 def page_project(i, p):
     nxt = PROJECTS[(i + 1) % len(PROJECTS)]
     imgs = project_images(p)
     video = project_video(p)
-    shots = [f'<figure class="pd-shot" data-fade><img src="{g}" alt="{e(p["name"])} — screen {k + 2}" loading="lazy" width="1960" height="1215"></figure>'
+    shots = [f'<figure class="pd-shot" data-fade>{pic(g, p["name"] + " website — screen " + str(k + 2))}</figure>'
              for k, g in enumerate(imgs[1:])]
     if video:
         shots.insert(0, f'<figure class="pd-shot pd-shot--video" data-fade><video src="{video}" poster="{imgs[0]}" autoplay muted loop playsinline preload="metadata" aria-label="{e(p["name"])} walkthrough"></video></figure>')
@@ -377,7 +491,7 @@ def page_project(i, p):
       <span class="eyebrow">{e(p['summary'])}</span>
       <h1 class="h1" style="margin-top:1.5rem">{e(p['name'])}</h1>
     </div>
-    <figure class="pd-hero-media" data-fade><img src="{imgs[0]}" alt="{e(p['name'])} — {e(p['summary'])}" width="1960" height="1215"></figure>
+    <figure class="pd-hero-media" data-fade>{pic(imgs[0], p['name'] + " — " + p['summary'] + " by Norvel", lazy=False)}</figure>
     <div class="container">
       <div class="pd-top">
         <p class="pd-intro">{e(p['intro'])}</p>
@@ -418,7 +532,11 @@ def page_project(i, p):
 </main>
 """
     body = body.replace(nav(), nav("projects"), 1)
-    write(f"projects/{p['slug']}/index.html", head(p["name"], p["intro"], f"/projects/{p['slug']}/") + body + footer())
+    write(f"projects/{p['slug']}/index.html", head(f"{p['name']} — {p['summary']} | Norvel Case Study",
+              f"{p['summary']} for {p['client']} by Norvel. {p['card']}",
+              f"/projects/{p['slug']}/", ld=[project_ld(p)], og_type="article",
+              crumbs=[("Work", "/projects/"), (p["name"], f"/projects/{p['slug']}/")],
+              og_image=SITE["url"] + imgs[0] if imgs[0].startswith("/assets/work/") and imgs[0].endswith(".jpg") else None) + body + footer())
 
 
 def page_404():
@@ -432,17 +550,49 @@ def page_404():
   </div>
 </main>
 """
-    write("404.html", head("Page not found", SITE["description"], "/404") + body + footer())
+    write("404.html", head("Page not found | Norvel", SITE["description"], "/404").replace('content="index, follow, max-image-preview:large"', 'content="noindex"') + body + footer())
 
 
 def extras():
     mark_g = _mark_g
     write("assets/img/favicon.svg",
           f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -40 584 580"><rect x="-60" y="-40" width="584" height="580" rx="110" fill="#0b0e13"/><g fill="#c8f03c">{mark_g}</g></svg>')
+    import datetime
+    today = datetime.date.today().isoformat()
     urls = ["/", "/about/", "/projects/", "/services/", "/testimonials/", "/contact/"] + [f"/projects/{p['slug']}/" for p in PROJECTS]
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-          + "".join(f"  <url><loc>{SITE['url']}{u}</loc></url>\n" for u in urls) + "</urlset>\n")
-    write("robots.txt", f"User-agent: *\nAllow: /\nSitemap: {SITE['url']}/sitemap.xml\n")
+          + "".join(f"  <url><loc>{SITE['url']}{u}</loc><lastmod>{today}</lastmod></url>\n" for u in urls) + "</urlset>\n")
+    bots = ["Googlebot", "Bingbot", "GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot",
+            "PerplexityBot", "Google-Extended", "Applebot", "Applebot-Extended"]
+    write("robots.txt", "".join(f"User-agent: {b}\nAllow: /\n\n" for b in bots)
+          + f"User-agent: *\nAllow: /\nDisallow: /404.html\n\nSitemap: {SITE['url']}/sitemap.xml\n")
+    proj = "\n".join(f"- [{p['name']} — {p['summary']}]({SITE['url']}/projects/{p['slug']}/): {p['card']}" for p in PROJECTS)
+    svc = "\n".join(f"- **{t}**: {d} Includes: {', '.join(x)}." for t, d, x in SERVICES["items"])
+    faq = "\n".join(f"- **{q}** {a}" for q, a in FAQS["items"])
+    write("llms.txt", f"""# Norvel Studio
+
+> {SITE['description']}
+
+Norvel is an independent, AI-native design and technology studio (norvelstudio.com). One senior team handles brand identity, website design and Webflow development end to end, using AI to explore and ship faster while senior designers own every decision. Clients are primarily in the United States and Europe. Contact: {SITE['email']}.
+
+## Services
+{svc}
+
+Ways to work together: fixed-scope projects, monthly retainers, or a fractional design & Webflow team.
+
+## Selected work
+{proj}
+
+## FAQ
+{faq}
+
+## Pages
+- [Home]({SITE['url']}/)
+- [About]({SITE['url']}/about/)
+- [Work]({SITE['url']}/projects/)
+- [Services]({SITE['url']}/services/)
+- [Contact]({SITE['url']}/contact/)
+""")
 
 
 # ---------- shared section builders for inner pages ----------
@@ -586,7 +736,9 @@ def page_about():
   {end_cta()}
 </main>
 """
-    write("about/index.html", head("About", A["lead"], "/about/") + body + footer())
+    write("about/index.html", head("About Norvel — AI-Native Design & Webflow Studio",
+              "Norvel is an independent, AI-native design and technology studio: brand, web design and Webflow development handled by one senior team.",
+              "/about/", crumbs=[("About", "/about/")]) + body + footer())
 
 
 def page_services():
@@ -627,7 +779,13 @@ def page_services():
   {end_cta()}
 </main>
 """
-    write("services/index.html", head("Services", S["lead"], "/services/") + body + footer())
+    write("services/index.html", head("Web Design, Webflow Development & Brand Identity Services | Norvel",
+              "Website design, Webflow development and brand identity from one senior studio. Projects, retainers or a fractional design & Webflow team.",
+              "/services/", crumbs=[("Services", "/services/")],
+              ld=[faq_ld(FAQS["items"], "/services/")] + [{"@type": "Service", "@id": f"{SITE['url']}/services/#{k}", "name": t,
+                  "description": d, "provider": {"@id": ORG_ID}, "areaServed": ["United States", "Europe"],
+                  "serviceType": t, "offers": {"@type": "Offer", "url": SITE["url"] + "/contact/"}}
+                  for k, (t, d, _) in zip(["brand", "web-design", "webflow"], SERVICES["items"])]) + body + footer())
 
 
 def page_testimonials():
@@ -664,7 +822,7 @@ def page_testimonials():
   {end_cta()}
 </main>
 """
-    write("testimonials/index.html", head("Testimonials", T["lead"], "/testimonials/") + body + footer())
+    write("testimonials/index.html", head("Client Testimonials | Norvel", T["lead"], "/testimonials/", crumbs=[("Testimonials", "/testimonials/")]) + body + footer())
 
 
 def page_contact():
@@ -705,7 +863,9 @@ def page_contact():
   {faq_block(FAQS['items'][:4])}
 </main>
 """
-    write("contact/index.html", head("Contact", C["lead"], "/contact/") + body + footer())
+    write("contact/index.html", head("Contact Norvel — Start a Web Design or Webflow Project",
+              "Tell us about your website, Webflow or branding project. Norvel replies within one business day with next steps.",
+              "/contact/", crumbs=[("Contact", "/contact/")], ld=[faq_ld(FAQS["items"][:4], "/contact/")]) + body + footer())
 
 
 if __name__ == "__main__":

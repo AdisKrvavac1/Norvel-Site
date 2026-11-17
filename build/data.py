@@ -5,7 +5,7 @@ SITE = {
     "url": "https://norvelstudio.com",
     "email": "hello@norvelstudio.com",
     "tagline": "Design & technology studio",
-    "description": "Norvel is an independent design & technology studio. Senior design judgment, AI-accelerated delivery — brand identity, web design and Webflow development.",
+    "description": "Norvel is an AI-native design studio for web design, Webflow development and brand identity — senior design judgment, shipped at AI speed for US and European teams.",
     "socials": [("LinkedIn", "https://www.linkedin.com/"), ("Instagram", "https://www.instagram.com/"), ("X", "https://x.com/")],
 }
 

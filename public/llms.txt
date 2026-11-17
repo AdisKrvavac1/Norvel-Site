@@ -1,0 +1,37 @@
+# Norvel Studio
+
+> Norvel is an AI-native design studio for web design, Webflow development and brand identity — senior design judgment, shipped at AI speed for US and European teams.
+
+Norvel is an independent, AI-native design and technology studio (norvelstudio.com). One senior team handles brand identity, website design and Webflow development end to end, using AI to explore and ship faster while senior designers own every decision. Clients are primarily in the United States and Europe. Contact: hello@norvelstudio.com.
+
+## Services
+- **Brand & Identity**: Identities that hold up everywhere — from a favicon to a billboard — built as systems, not one-off logos. Includes: Logo & mark systems, Visual language & guidelines, Type, colour & motion principles, Brand assets & templates.
+- **Web Design**: Websites designed around what your visitors need to understand, feel and do — then prototyped before a line of code. Includes: UX structure & information architecture, Responsive UI design, Interactive prototypes, Design systems for the web.
+- **Webflow Development**: Production-grade Webflow builds: fast, accessible, CMS-driven and easy for your team to run after launch. Includes: Webflow & custom code, CMS architecture, GSAP & scroll interactions, SEO, performance & analytics.
+
+Ways to work together: fixed-scope projects, monthly retainers, or a fractional design & Webflow team.
+
+## Selected work
+- [HP Workforce Experience — Complete website design](https://norvelstudio.com/projects/hp-workforce-experience/): A complete website for HP’s AI-driven digital employee experience platform — from homepage to platform, offerings, partners and resources.
+- [Gyde — Website design & Webflow build](https://norvelstudio.com/projects/gyde-health/): Brand-forward website for the first AI-native brokerage for insurance agencies — designed and built in Webflow.
+- [Playground — Website design & Webflow build](https://norvelstudio.com/projects/playground/): Marketing site for the AI design studio for everyone — playful, colourful and built in Webflow.
+- [Lightspeed — Website design](https://norvelstudio.com/projects/lightspeed/): Website design for a multi-stage venture firm built around one idea: possibility grows the deeper you go.
+- [a16z — Design collaboration](https://norvelstudio.com/projects/a16z/): Design collaboration with Andreessen Horowitz on a cinematic, video-led web experience.
+- [GTM10 Awards — Billboards for the Nasdaq Tower, Times Square](https://norvelstudio.com/projects/gtm10-awards/): Billboard designs for the GTM10 Awards winners, shown on the Nasdaq Tower in Times Square.
+- [Lagunitas — Website design](https://norvelstudio.com/projects/lagunitas/): A loud, irreverent website for the Petaluma brewery — beers, taproom and merch with plenty of attitude.
+- [Hello Cake — E-commerce design](https://norvelstudio.com/projects/hello-cake/): A bright, stigma-free online store for a fast-growing sexual wellness brand.
+
+## FAQ
+- **How fast can you start?** Usually within one to two weeks. Smaller projects like a landing page can often start the same week.
+- **What does “AI-native” mean for my project?** AI speeds up research, exploration and production, so we can show you more directions earlier. Every decision, review and final output is still made by a senior designer.
+- **Which tools do you work with?** Figma for design, Adobe Creative Cloud for brand and illustration, Webflow for development, and GSAP for motion — plus AI tools across the whole process.
+- **Do you only build in Webflow?** Webflow is our default because it gives your team full control after launch. For special cases we also deliver custom-coded static sites.
+- **Can you handle both branding and the website?** Yes — that’s the point. Brand, web design and development are three equal pillars, handled by one team so nothing gets lost in hand-offs.
+- **Where are you based?** We’re a remote-first studio working with clients in the US and Europe, across time zones.
+
+## Pages
+- [Home](https://norvelstudio.com/)
+- [About](https://norvelstudio.com/about/)
+- [Work](https://norvelstudio.com/projects/)
+- [Services](https://norvelstudio.com/services/)
+- [Contact](https://norvelstudio.com/contact/)
