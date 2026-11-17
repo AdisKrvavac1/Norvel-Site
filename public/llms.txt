@@ -29,9 +29,18 @@ Ways to work together: fixed-scope projects, monthly retainers, or a fractional 
 - **Can you handle both branding and the website?** Yes — that’s the point. Brand, web design and development are three equal pillars, handled by one team so nothing gets lost in hand-offs.
 - **Where are you based?** We’re a remote-first studio working with clients in the US and Europe, across time zones.
 
+## Service pages
+- [Webflow Development](https://norvelstudio.com/services/webflow-development/): Norvel builds production-grade Webflow websites: custom code, CMS architecture, GSAP interactions, SEO and performance — handed over so your team can run it.
+- [Web Design](https://norvelstudio.com/services/web-design/): Strategic website design for SaaS, AI and B2B companies: information architecture, UX, UI design and interactive prototypes — by a senior, AI-native studio.
+- [Brand & Identity](https://norvelstudio.com/services/brand-identity/): Brand identity design by Norvel: logo and mark systems, visual language, typography, colour, motion principles and brand guidelines built as a flexible system.
+
+## Insights
+- [Webflow vs WordPress for B2B marketing sites: how to choose](https://norvelstudio.com/insights/webflow-vs-wordpress-b2b-marketing-site/): Webflow or WordPress for your B2B website? A practical comparison of editing, performance, security, SEO, flexibility and cost of ownership — and when each is the right call.
+
 ## Pages
 - [Home](https://norvelstudio.com/)
 - [About](https://norvelstudio.com/about/)
 - [Work](https://norvelstudio.com/projects/)
 - [Services](https://norvelstudio.com/services/)
+- [Insights](https://norvelstudio.com/insights/)
 - [Contact](https://norvelstudio.com/contact/)

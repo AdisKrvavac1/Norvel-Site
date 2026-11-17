@@ -262,7 +262,7 @@ def footer():
     <div class="footer-brand">
       <a href="/" class="footer-logo" aria-label="Norvel — home">{LOGO}</a>
       <nav class="footer-links" aria-label="Footer">
-        <a href="/about/">About</a><a href="/projects/">Projects</a><a href="/services/">Services</a><a href="/testimonials/">Testimonials</a><a href="/contact/">Contact</a>{socials}
+        <a href="/about/">About</a><a href="/projects/">Projects</a><a href="/services/">Services</a><a href="/testimonials/">Testimonials</a><a href="/insights/">Insights</a><a href="/contact/">Contact</a>{socials}
       </nav>
     </div>
     <div class="footer-bottom">
@@ -318,7 +318,7 @@ def page_home():
         <button class="svc-btn" aria-expanded="{'true' if i == 0 else 'false'}">
           <span class="svc-num">0{i + 1}</span><span class="svc-title">{e(t)}</span><span class="svc-plus">{PLUS}</span>
         </button>
-        <div class="svc-panel"><div><div class="svc-panel-inner"><p>{e(d)}</p><ul>{''.join(f'<li>{e(x)}</li>' for x in items)}</ul></div></div></div>
+        <div class="svc-panel"><div><div class="svc-panel-inner"><p>{e(d)}<br><a class="link-arrow u-line" style="margin-top:1rem;color:var(--ink)" href="/services/{['brand-identity', 'web-design', 'webflow-development'][i]}/">Learn more {ARROW}</a></p><ul>{''.join(f'<li>{e(x)}</li>' for x in items)}</ul></div></div></div>
       </div>""" for i, (t, d, items) in enumerate(SERVICES["items"]))
 
     slides = "".join(f"""
@@ -572,7 +572,9 @@ def extras():
           f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -40 584 580"><rect x="-60" y="-40" width="584" height="580" rx="110" fill="#0b0e13"/><g fill="#c8f03c">{mark_g}</g></svg>')
     import datetime
     today = datetime.date.today().isoformat()
-    urls = ["/", "/about/", "/projects/", "/services/", "/testimonials/", "/contact/"] + [f"/projects/{p['slug']}/" for p in PROJECTS]
+    urls = (["/", "/about/", "/projects/", "/services/", "/testimonials/", "/contact/", "/insights/"]
+            + [f"/services/{x['slug']}/" for x in SERVICE_PAGES] + [f"/projects/{p['slug']}/" for p in PROJECTS]
+            + [f"/insights/{x['slug']}/" for x in POSTS])
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + "".join(f"  <url><loc>{SITE['url']}{u}</loc><lastmod>{today}</lastmod></url>\n" for u in urls) + "</urlset>\n")
     bots = ["Googlebot", "Bingbot", "GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot",
@@ -599,11 +601,18 @@ Ways to work together: fixed-scope projects, monthly retainers, or a fractional 
 ## FAQ
 {faq}
 
+## Service pages
+""" + "\n".join(f"- [{x['pillar']}]({SITE['url']}/services/{x['slug']}/): {x['description']}" for x in SERVICE_PAGES) + f"""
+
+## Insights
+""" + "\n".join(f"- [{x['title']}]({SITE['url']}/insights/{x['slug']}/): {x['description']}" for x in POSTS) + f"""
+
 ## Pages
 - [Home]({SITE['url']}/)
 - [About]({SITE['url']}/about/)
 - [Work]({SITE['url']}/projects/)
 - [Services]({SITE['url']}/services/)
+- [Insights]({SITE['url']}/insights/)
 - [Contact]({SITE['url']}/contact/)
 """)
 
@@ -764,7 +773,7 @@ def page_services():
           <p>{e(d)}</p>
           <span class="eyebrow" style="margin-top:2rem">Deliverables</span>
           <ul class="ticks">{''.join(f'<li>{e(x)}</li>' for x in items)}</ul>
-          <a class="link-arrow u-line" href="/contact/" style="margin-top:2rem">Start a {e(t.split(' ')[0].lower())} project {ARROW}</a>
+          <a class="btn" href="/services/{['brand-identity', 'web-design', 'webflow-development'][i]}/" style="margin-top:2rem">Explore {e(t)}<span class="btn-ico">{ARROW_UR}</span></a>
         </div>
       </article>""" for i, (t, d, items) in enumerate(SERVICES["items"]))
     engage = "".join(f"""
@@ -881,6 +890,160 @@ def page_contact():
               "/contact/", crumbs=[("Contact", "/contact/")], ld=[faq_ld(FAQS["items"][:4], "/contact/")]) + body + footer())
 
 
+# ---------- service landing pages ----------
+def md_inline(t):
+    t = e(t)
+    t = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
+    t = re.sub(r"\[(.+?)\]\((.+?)\)", r'<a class="u-line lime" href="\2">\1</a>', t)
+    return t
+
+
+def related_cards(slugs):
+    ps = [q for q in PROJECTS if q["slug"] in slugs]
+    return "".join(f"""
+      <a class="rel-card" href="/projects/{q['slug']}/" data-fade>
+        <div class="rel-media">{pic(project_images(q)[0], q['name'] + ' — ' + q['summary'], '(max-width: 991px) 100vw, 33vw')}</div>
+        <h3>{e(q['name'])}</h3><p>{e(q['summary'])}</p>
+      </a>""" for q in ps)
+
+
+def page_service(sp):
+    cover_p = next(q for q in PROJECTS if q["slug"] == sp["cover"])
+    cover = project_images(cover_p)[0]
+    deliver = "".join(f'<div class="dl-item" data-fade><span class="svc-num" style="padding:0">0{i + 1}</span><h3>{e(t)}</h3><p>{e(d)}</p></div>'
+                      for i, (t, d) in enumerate(sp["deliverables"]))
+    steps = "".join(f"""
+        <li class="step" data-fade><span class="step-num">0{i + 1}</span><h3>{e(t)}</h3><p>{e(d)}</p></li>"""
+                    for i, (t, d) in enumerate(sp["process"]))
+    others = "".join(f'<a class="link-arrow u-line" href="/services/{o["slug"]}/">{e(o["pillar"])} {ARROW}</a>'
+                     for o in SERVICE_PAGES if o["slug"] != sp["slug"])
+    path = f"/services/{sp['slug']}/"
+    ld = [{"@type": "Service", "@id": SITE["url"] + path + "#service", "name": sp["pillar"], "serviceType": sp["pillar"],
+           "description": sp["description"], "provider": {"@id": ORG_ID}, "areaServed": ["United States", "Europe"],
+           "url": SITE["url"] + path,
+           "hasOfferCatalog": {"@type": "OfferCatalog", "name": sp["pillar"], "itemListElement": [
+               {"@type": "Offer", "itemOffered": {"@type": "Service", "name": t, "description": d}} for t, d in sp["deliverables"]]}},
+          faq_ld(sp["faqs"], path)]
+    body = f"""{nav("services")}
+<main id="main">
+  <section class="page-hero">
+    <div class="container">
+      <div class="sec-head" style="padding-bottom:clamp(2.5rem,5vw,4rem)">
+        <div><span class="eyebrow">Services · {e(sp['pillar'])}</span><h1 class="h1" style="margin-top:1.5rem">{e(sp['title'])}</h1></div>
+        <div data-fade><p class="muted">{e(sp['lead'])}</p>
+          <a class="btn" href="/contact/" style="margin-top:1.75rem">Start a project<span class="btn-ico">{ARROW_UR}</span></a></div>
+      </div>
+    </div>
+    <figure class="pd-hero-media" data-fade>{pic(cover, cover_p['name'] + ' — ' + cover_p['summary'] + ' by Norvel', lazy=False)}</figure>
+  </section>
+
+  <section class="section">
+    <div class="container story">
+      <h2 class="h2" data-reveal>Why {e(sp['pillar'])} with Norvel</h2>
+      <div class="story-copy" data-fade><p>{e(sp['intro'])}</p></div>
+    </div>
+  </section>
+
+  {stairs('var(--ink)', 'var(--fog)')}
+  <section class="section light" style="padding-top:calc(var(--section) - 96px)">
+    <div class="container">
+      <div class="sec-head sec-head--solo"><div><span class="eyebrow">What you get</span><h2 class="h2" data-reveal>Deliverables</h2></div></div>
+      <div class="dl-grid">{deliver}</div>
+    </div>
+  </section>
+  {stairs('var(--fog)', 'var(--ink)', rev=True)}
+
+  <section class="section" style="padding-top:calc(var(--section) - 96px)">
+    <div class="container">
+      <div class="sec-head sec-head--solo"><div><span class="eyebrow">Process</span><h2 class="h2" data-reveal>How we work</h2></div></div>
+      <ol class="steps steps--4">{steps}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="sec-head"><div><span class="eyebrow">Related work</span><h2 class="h2" data-reveal>{e(sp['pillar'])} in practice</h2></div>
+        <p data-fade><a class="link-arrow u-line" href="/projects/">All projects {ARROW}</a></p></div>
+      <div class="rel-grid">{related_cards(sp['work'])}</div>
+    </div>
+  </section>
+
+  {faq_block(sp['faqs'])}
+
+  <section class="section" style="padding-top:0">
+    <div class="container other-svcs"><span class="eyebrow">Other services</span><div>{others}</div></div>
+  </section>
+  {end_cta()}
+</main>
+"""
+    write(path.strip("/") + "/index.html",
+          head(sp["seo_title"], sp["description"], path, ld=ld,
+               crumbs=[("Services", "/services/"), (sp["pillar"], path)]) + body + footer())
+
+
+# ---------- insights ----------
+def render_body(blocks):
+    out = []
+    for kind, val in blocks:
+        if kind == "p":
+            out.append(f"<p>{md_inline(val)}</p>")
+        elif kind == "h2":
+            out.append(f'<h2 id="{re.sub(r"[^a-z0-9]+", "-", val.lower()).strip("-")}">{e(val)}</h2>')
+        elif kind in ("ul", "ol"):
+            out.append(f"<{kind}>" + "".join(f"<li>{md_inline(x)}</li>" for x in val) + f"</{kind}>")
+    return "\n".join(out)
+
+
+def page_insights():
+    cards = "".join(f"""
+      <a class="post-card" href="/insights/{q['slug']}/" data-fade>
+        <div class="post-meta"><span>{e(q['category'])}</span><span>{e(q['read'])}</span></div>
+        <h2>{e(q['title'])}</h2><p>{e(q['excerpt'])}</p>
+        <span class="link-arrow lime">Read article {ARROW}</span>
+      </a>""" for q in POSTS)
+    ld = [{"@type": "Blog", "@id": SITE["url"] + "/insights/#blog", "name": "Norvel Insights", "publisher": {"@id": ORG_ID},
+           "blogPost": [{"@type": "BlogPosting", "headline": q["title"], "url": f"{SITE['url']}/insights/{q['slug']}/",
+                         "datePublished": q["date"]} for q in POSTS]}]
+    body = f"""{nav()}
+<main id="main">
+  {page_hero("Insights", "Notes on design, Webflow and building for the web", "Practical thinking from the studio — how we approach websites, brands and Webflow builds for SaaS, AI and B2B teams.")}
+  <section class="section" style="padding-top:0"><div class="container post-list">{cards}</div></section>
+  {end_cta()}
+</main>
+"""
+    write("insights/index.html", head("Insights — Web Design & Webflow Articles | Norvel",
+          "Articles from Norvel on website design, Webflow development, branding and building marketing sites for SaaS, AI and B2B companies.",
+          "/insights/", ld=ld, crumbs=[("Insights", "/insights/")]) + body + footer())
+
+
+def page_post(q):
+    import datetime
+    path = f"/insights/{q['slug']}/"
+    nice = datetime.date.fromisoformat(q["date"]).strftime("%B %-d, %Y")
+    ld = [{"@type": "BlogPosting", "@id": SITE["url"] + path + "#article", "headline": q["title"], "description": q["description"],
+           "datePublished": q["date"], "dateModified": q["date"], "url": SITE["url"] + path, "mainEntityOfPage": SITE["url"] + path,
+           "author": {"@type": "Person", "name": AUTHOR["name"], "jobTitle": AUTHOR["role"], "worksFor": {"@id": ORG_ID}},
+           "publisher": {"@id": ORG_ID}, "image": SITE["url"] + "/assets/img/og.png", "articleSection": q["category"],
+           "inLanguage": "en"}]
+    body = f"""{nav()}
+<main id="main">
+  <article class="post">
+    <header class="container post-head">
+      <a class="link-arrow u-line" href="/insights/">← Insights</a>
+      <span class="eyebrow" style="margin-top:2rem">{e(q['category'])}</span>
+      <h1 class="h2" style="margin-top:1.25rem">{e(q['title'])}</h1>
+      <div class="post-byline"><span>By {e(AUTHOR['name'])}</span><span>{nice}</span><span>{e(q['read'])}</span></div>
+    </header>
+    <div class="container"><div class="post-body">{render_body(q['body'])}</div></div>
+  </article>
+  {end_cta()}
+</main>
+"""
+    write(path.strip("/") + "/index.html", head(q["seo_title"], q["description"], path, ld=ld, og_type="article",
+          crumbs=[("Insights", "/insights/"), (q["title"], path)]) + body + footer())
+
+
 if __name__ == "__main__":
     os.makedirs(os.path.join(PUB, "assets/work"), exist_ok=True)
     page_home()
@@ -891,6 +1054,11 @@ if __name__ == "__main__":
     page_services()
     page_testimonials()
     page_contact()
+    for sp in SERVICE_PAGES:
+        page_service(sp)
+    page_insights()
+    for q in POSTS:
+        page_post(q)
     page_404()
     extras()
     if _PIL is not None:
