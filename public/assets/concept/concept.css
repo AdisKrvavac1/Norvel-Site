@@ -578,3 +578,4 @@ body.lock{overflow:hidden}
 .nav:before{content:"";position:absolute;left:0;right:0;bottom:100%;height:200px;background:#fff;opacity:0;transition:opacity .3s;pointer-events:none}
 .nav.solid:before,.nav.open:before{opacity:1}
 .nav.solid,.nav.open{background:#fff}
+.pmodal[hidden]{display:none!important}

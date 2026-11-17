@@ -241,5 +241,5 @@
   addEventListener("resize", () => { grads.forEach(sizeG); grads.forEach(g => grad(g, lastT)); });
   if (!isNaN(FIX)) { $$(".row").forEach(r => (r.style.animation = "none")); tabAuto = false; frame(FIX); }
   else if (reduce) frame(5.8);
-  else { const t0 = performance.now(); (function L(n) { frame((n - t0) / 1000); requestAnimationFrame(L); })(t0); }
+  else { const t0 = performance.now(); (function L(n) { requestAnimationFrame(L); try { frame(Math.max(0, (n - t0) / 1000)); } catch (err) { console.error(err); } })(t0); }
 })();
