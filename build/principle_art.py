@@ -89,3 +89,43 @@ def next_():
 
 
 ARTS = [foundation(), explore(), loop(), next_()]
+
+
+def post_webflow_vs_wordpress():
+    """Two browser windows side by side: a tidy component-based layout vs a plugin-stacked one."""
+    def win(x, y, w, h, op):
+        return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="10" fill="#0b0e13" stroke-opacity="{op}"/>'
+                f'<line x1="{x}" y1="{y + 26}" x2="{x + w}" y2="{y + 26}" stroke-opacity="{op * .6:.2f}"/>'
+                + "".join(f'<circle cx="{x + 16 + i * 12}" cy="{y + 13}" r="3" stroke-opacity="{op}"/>' for i in range(3)))
+    o = ['<defs><pattern id="pg" width="24" height="24" patternUnits="userSpaceOnUse">'
+         '<path d="M24 0H0V24" stroke="#eef1f4" stroke-opacity=".05" fill="none"/></pattern>'
+         '<radialGradient id="pgl"><stop offset="0" stop-color="#c8f03c" stop-opacity=".22"/><stop offset="1" stop-color="#c8f03c" stop-opacity="0"/></radialGradient></defs>',
+         '<rect width="480" height="300" fill="#11151c" stroke="none"/>',
+         '<rect width="480" height="300" fill="url(#pg)" stroke="none"/>',
+         '<circle cx="150" cy="150" r="190" fill="url(#pgl)" stroke="none"/>']
+    # left: Webflow-like — clean component blocks, lime
+    x, y = 46, 58
+    o.append(win(x, y, 176, 184, 1))
+    o.append(f'<rect x="{x + 16}" y="{y + 42}" width="96" height="12" rx="3" fill="{L}" stroke="none"/>')
+    o.append(f'<rect x="{x + 16}" y="{y + 62}" width="64" height="12" rx="3" fill="{L}" fill-opacity=".45" stroke="none"/>')
+    o.append(f'<rect x="{x + 16}" y="{y + 86}" width="44" height="14" rx="7" fill="{L}" stroke="none"/>')
+    for i in range(3):
+        o.append(f'<rect class="p-float" style="animation-delay:{i * .3}s" x="{x + 16 + i * 50}" y="{y + 116}" width="42" height="52" rx="5" stroke-opacity=".9"/>')
+    # right: WordPress-like — plugin pieces stacked, dashed, outlined
+    x2, y2 = 258, 58
+    o.append(win(x2, y2, 176, 184, .55))
+    pieces = [(16, 42, 70, 22), (92, 42, 68, 22), (16, 70, 50, 30), (72, 70, 88, 30), (16, 106, 144, 22), (16, 134, 60, 34), (82, 134, 78, 34)]
+    for i, (px, py, pw, ph) in enumerate(pieces):
+        o.append(f'<rect x="{x2 + px}" y="{y2 + py}" width="{pw}" height="{ph}" rx="3" stroke-opacity=".5" stroke-dasharray="3 4"/>')
+        o.append(f'<circle cx="{x2 + px + pw - 6}" cy="{y2 + py + 6}" r="2" fill="#eef1f4" fill-opacity=".4" stroke="none"/>')
+    # vs
+    o.append('<circle cx="240" cy="150" r="17" fill="#0b0e13" stroke-width="1.4"/>')
+    o.append('<text x="240" y="154.5" text-anchor="middle" font-family="Inter,Arial" font-size="12" fill="#c8f03c" stroke="none" letter-spacing="1">VS</text>')
+    o.append('<text x="134" y="270" text-anchor="middle" font-family="Inter,Arial" font-size="10" fill="#8a93a0" stroke="none" letter-spacing="2.5">COMPONENTS</text>')
+    o.append('<text x="346" y="270" text-anchor="middle" font-family="Inter,Arial" font-size="10" fill="#8a93a0" stroke="none" letter-spacing="2.5">PLUGINS</text>')
+    return (f'<svg class="post-art-svg" viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" fill="none" stroke="{L}" '
+            f'stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" role="img" '
+            f'aria-label="Webflow components compared with WordPress plugins">{"".join(o)}</svg>')
+
+
+POST_ARTS = {"webflow-vs-wordpress-b2b-marketing-site": post_webflow_vs_wordpress()}

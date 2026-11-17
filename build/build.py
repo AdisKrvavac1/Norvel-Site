@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from data import *          # noqa: F401,F403
 from art import COMPS
-from principle_art import ARTS as PRINCIPLE_ARTS
+from principle_art import ARTS as PRINCIPLE_ARTS, POST_ARTS
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PUB = os.path.join(ROOT, "public")
@@ -1000,9 +1000,13 @@ def render_body(blocks):
 def page_insights():
     cards = "".join(f"""
       <a class="post-card" href="/insights/{q['slug']}/" data-fade>
-        <div class="post-meta"><span>{e(q['category'])}</span><span>{e(q['read'])}</span></div>
-        <h2>{e(q['title'])}</h2><p>{e(q['excerpt'])}</p>
-        <span class="link-arrow lime">Read article {ARROW}</span>
+        <div class="post-copy">
+          <div class="post-meta"><span>{e(q['category'])}</span><span>{e(q['read'])}</span></div>
+          <h2>{e(q['title'])}</h2>
+          <p>{e(q['excerpt'])}</p>
+          <span class="link-arrow lime">Read article {ARROW}</span>
+        </div>
+        <div class="post-art">{POST_ARTS.get(q['slug'], '')}</div>
       </a>""" for q in POSTS)
     ld = [{"@type": "Blog", "@id": SITE["url"] + "/insights/#blog", "name": "Norvel Insights", "publisher": {"@id": ORG_ID},
            "blogPost": [{"@type": "BlogPosting", "headline": q["title"], "url": f"{SITE['url']}/insights/{q['slug']}/",
