@@ -23,9 +23,7 @@ def hashed(rel):
     import shutil
     h = ver(rel)
     base, ext = os.path.splitext(rel)
-    for old in glob.glob(os.path.join(PUB, f"{base}.*{ext}")):
-        if not old.endswith(f".{h}{ext}"):
-            os.remove(old)
+    # older hashed copies are kept on purpose: browsers holding a cached page still find their CSS/JS
     dst = f"{base}.{h}{ext}"
     if not os.path.exists(os.path.join(PUB, dst)):
         shutil.copy(os.path.join(PUB, rel), os.path.join(PUB, dst))
