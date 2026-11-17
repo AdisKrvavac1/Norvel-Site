@@ -549,3 +549,6 @@ h1{font-size:clamp(50px,6.4vw,92px);line-height:.97;letter-spacing:-.048em;margi
 .phero--post .narrow{max-width:calc(1010px + 64px)!important;padding-left:calc(32px + 290px)}
 @media(max-width:1000px){.phero--post .narrow{padding-left:32px}}
 @media(max-width:760px){.phero--post .narrow{padding-left:24px}}
+.skip{position:absolute;left:-9999px;top:8px;z-index:200;background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px}
+.skip:focus{left:16px}
+.nf{min-height:80vh}

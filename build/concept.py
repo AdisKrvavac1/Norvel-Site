@@ -172,13 +172,16 @@ def cta():
 </section>"""
 
 
+LIVE = {"on": False}
+
+
 def shell(title, desc, body, active="", with_cta=True):
     css, js = hashed("assets/concept/concept.css"), hashed("assets/concept/concept.js")
     links = "".join(f'<a href="{u}"{" aria-current=page" if k == active else ""}>{n}</a>' for n, u, k in NAVL)
     html = f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{e(title)} (concept A)</title>
+<title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -186,6 +189,7 @@ def shell(title, desc, body, active="", with_cta=True):
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{css}">
 </head><body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="nav" id="nav"><div class="wrap navin">
   <a href="/" class="brand" aria-label="Norvel home">{logo()}</a>
   <nav aria-label="Main">{links}</nav>
@@ -194,7 +198,7 @@ def shell(title, desc, body, active="", with_cta=True):
 </div>
 <div class="mnav" id="mnav">{links}<a class="btn" href="/contact/">Start a project {ARROW}</a></div>
 </header>
-<main>
+<main id="main">
 {body}
 {cta() if with_cta else ""}
 </main>
@@ -203,11 +207,13 @@ def shell(title, desc, body, active="", with_cta=True):
     <div><h6>Studio</h6><a href="/about/">About</a><a href="/projects/">Work</a><a href="/testimonials/">Testimonials</a><a href="/insights/">Insights</a></div>
     <div><h6>Services</h6><a href="/services/brand-identity/">Brand &amp; Identity</a><a href="/services/web-design/">Web Design</a><a href="/services/webflow-development/">Webflow Development</a></div>
     <div><h6>Contact</h6><a href="/contact/">Start a project</a><a href="mailto:{SITE["email"]}">{SITE["email"]}</a>{"".join(f'<a href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])}</div></div>
-  <div class="fbot"><span>© 2026 Norvel Studio</span><span>Concept A — Daylight · not indexed</span></div>
+  <div class="fbot"><span>© 2026 Norvel Studio</span><span>Designed &amp; built by Norvel</span></div>
 </div></footer>
 <script src="{js}" defer></script>
 </body></html>"""
-    # keep every internal link inside the concept
+    if LIVE["on"]:
+        return html
+    # preview: keep every internal link inside /concept/
     return re.sub(r'href="/(?!concept/|assets/)([^"]*)"', r'href="/concept/\1"', html)
 
 
@@ -281,17 +287,44 @@ def home():
     return body
 
 
+def merge_head(rel, html):
+    """Live mode: keep the SEO head (canonical, OG, JSON-LD, robots) the classic build wrote for this URL."""
+    old_path = os.path.join(PUB, rel)
+    if not os.path.exists(old_path):
+        return html
+    old = open(old_path).read()
+    oh = old[old.index("<head>") + 6:old.index("</head>")]
+    oh = re.sub(r'<link[^>]+(style\.css|fonts\.googleapis\.com/css2|fonts\.googleapis\.com"|fonts\.gstatic\.com)[^>]*>\n?', "", oh)
+    oh = oh.replace('content="#0b0e13"', 'content="#ffffff"')
+    nh = html[html.index("<head>") + 6:html.index("</head>")]
+    keep = "\n".join(l for l in nh.splitlines() if "fonts.g" in l or "assets/concept" in l)
+    return html[:html.index("<head>") + 6] + oh + keep + "\n" + html[html.index("</head>"):]
+
+
 def out(rel, html):
-    path = os.path.join(PUB, "concept", rel)
+    if LIVE["on"]:
+        html = merge_head(rel, html)
+        path = os.path.join(PUB, rel)
+    else:
+        path = os.path.join(PUB, "concept", rel)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     open(path, "w").write(html)
 
 
-def main():
+def page_404():
+    return f"""<section class="phero nf"><div class="grad grad-ph" aria-hidden="true"><canvas class="gcv"></canvas></div>
+  <div class="wrap phgrid"><div class="phcopy"><div class="eyebrow">Error 404</div><h1 class="ph1">This page took a different direction.</h1>
+  <p class="lead">The page you’re looking for doesn’t exist or has moved. Let’s get you back on track.</p>
+  <div class="ctas"><a class="btn" href="/">Back to home {ARROW}</a><a class="btn ghost" href="/projects/">See our work ›</a></div></div></div></section>"""
+
+
+def main(live=False):
+    LIVE["on"] = live
     out("index.html", shell("Norvel — Senior design, shipped at AI speed", SITE["description"], home()))
     import concept_pages
     n = concept_pages.build_all(out, shell)
-    print("Concept A written:", n + 1, "pages under public/concept/")
+    out("404.html", shell("Page not found | Norvel", SITE["description"], page_404(), with_cta=False))
+    print("Daylight design written:", n + 2, "pages", "(live)" if live else "under public/concept/")
 
 
 if __name__ == "__main__":
