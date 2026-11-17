@@ -609,3 +609,24 @@ picture { display: contents; }
 .sec-aside { justify-self: end; max-width: 360px; display: flex; flex-direction: column; align-items: flex-start; }
 .sec-aside p { max-width: none; }
 @media (max-width: 991px) { .sec-aside { justify-self: start; } }
+
+/* ===== Principle cards: copy left, lime line art right ===== */
+.slide { grid-template-columns: 1fr 1fr; align-items: stretch; min-height: 340px; }
+.slide-copy { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.slide-copy p { margin-top: auto; padding-top: 2.5rem; align-self: flex-start; }
+.slide-art { display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line-dark); padding-left: clamp(1.5rem, 3vw, 3rem); }
+.p-art { width: 100%; max-width: 440px; height: auto; overflow: visible; }
+.p-float { animation: pFloat 5s ease-in-out infinite; transform-box: fill-box; }
+@keyframes pFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.p-pulse { transform-box: fill-box; transform-origin: center; animation: pPulse 3.2s ease-in-out infinite; }
+@keyframes pPulse { 0%, 100% { opacity: .2; transform: scale(.92); } 50% { opacity: .8; transform: scale(1.05); } }
+.p-draw { stroke-dasharray: 600; stroke-dashoffset: 600; }
+.slide.is-active .p-draw { animation: pDraw 1.8s var(--ease) .2s forwards; }
+@keyframes pDraw { to { stroke-dashoffset: 0; } }
+@media (max-width: 991px) {
+  .slide { grid-template-columns: 1fr; }
+  .slide-art { border-left: 0; border-top: 1px solid var(--line-dark); padding: 2rem 0 0; order: 2; }
+  .slide-copy p { padding-top: 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) { .p-draw { stroke-dashoffset: 0; } }
+.slide-art { overflow: hidden; }

@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from data import *          # noqa: F401,F403
 from art import COMPS
+from principle_art import ARTS as PRINCIPLE_ARTS
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PUB = os.path.join(ROOT, "public")
@@ -323,8 +324,8 @@ def page_home():
 
     slides = "".join(f"""
           <article class="slide">
-            <div><span class="slide-num">0{i + 1} — PRINCIPLE</span><h3>{e(t)}</h3></div>
-            <p>{e(d)}</p>
+            <div class="slide-copy"><span class="slide-num">0{i + 1} — PRINCIPLE</span><h3>{e(t)}</h3><p>{e(d)}</p></div>
+            <div class="slide-art" aria-hidden="false">{PRINCIPLE_ARTS[i % len(PRINCIPLE_ARTS)]}</div>
           </article>""" for i, (t, d) in enumerate(MODEL["principles"]))
 
     personas = "".join(f"""
@@ -639,8 +640,8 @@ def end_cta():
 def model_slider():
     slides = "".join(f"""
           <article class="slide">
-            <div><span class="slide-num">0{i + 1} — PRINCIPLE</span><h3>{e(t)}</h3></div>
-            <p>{e(d)}</p>
+            <div class="slide-copy"><span class="slide-num">0{i + 1} — PRINCIPLE</span><h3>{e(t)}</h3><p>{e(d)}</p></div>
+            <div class="slide-art" aria-hidden="false">{PRINCIPLE_ARTS[i % len(PRINCIPLE_ARTS)]}</div>
           </article>""" for i, (t, d) in enumerate(MODEL["principles"]))
     return f"""<div class="slider" data-slider tabindex="0" aria-label="Norvel principles">
         <div class="slider-viewport"><div class="slider-track" data-track>{slides}
