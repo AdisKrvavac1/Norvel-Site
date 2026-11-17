@@ -105,8 +105,13 @@ def project_ld(p):
 
 
 # ---------- responsive images (WebP + JPG fallback) ----------
-from PIL import Image as _PIL
+try:
+    from PIL import Image as _PIL       # only needed locally to (re)generate image variants
+except ImportError:
+    _PIL = None
 WIDTHS = (800, 1400, 2000)
+_MANIFEST_PATH = os.path.join(os.path.dirname(__file__), "images.json")
+_MANIFEST = json.load(open(_MANIFEST_PATH)) if os.path.exists(_MANIFEST_PATH) else {}
 
 
 def responsive(src):
@@ -114,8 +119,16 @@ def responsive(src):
     path = os.path.join(PUB, src.lstrip("/"))
     if not src.endswith(".jpg") or not os.path.exists(path):
         return None
+    if _PIL is None:                      # e.g. on Render: use committed variants + manifest
+        if src not in _MANIFEST:
+            return None
+        W, H = _MANIFEST[src]
+        ws = [w for w in WIDTHS if w <= W]
+        return (", ".join([f"{src[:-4]}-{w}.webp {w}w" for w in ws] + [f"{src[:-4]}.webp {W}w"]),
+                ", ".join([f"{src[:-4]}-{w}.jpg {w}w" for w in ws] + [f"{src} {W}w"]), W, H)
     im = _PIL.open(path).convert("RGB")
     W, H = im.size
+    _MANIFEST[src] = [W, H]
     base = path[:-4]
     webp, jpg = [], []
     for w in WIDTHS:
@@ -880,4 +893,6 @@ if __name__ == "__main__":
     page_contact()
     page_404()
     extras()
+    if _PIL is not None:
+        json.dump(_MANIFEST, open(_MANIFEST_PATH, "w"), indent=1, sort_keys=True)
     print("Built:", sum(len(f) for _, _, f in os.walk(PUB)), "files in", PUB)
