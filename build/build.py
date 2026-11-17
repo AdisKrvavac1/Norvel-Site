@@ -930,7 +930,7 @@ def page_service(sp):
     <div class="container">
       <div class="sec-head" style="padding-bottom:clamp(2.5rem,5vw,4rem)">
         <div><span class="eyebrow">Services · {e(sp['pillar'])}</span><h1 class="h1" style="margin-top:1.5rem">{e(sp['title'])}</h1></div>
-        <div data-fade><p class="muted">{e(sp['lead'])}</p>
+        <div class="sec-aside" data-fade><p class="muted">{e(sp['lead'])}</p>
           <a class="btn" href="/contact/" style="margin-top:1.75rem">Start a project<span class="btn-ico">{ARROW_UR}</span></a></div>
       </div>
     </div>

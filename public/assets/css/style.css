@@ -598,3 +598,14 @@ picture { display: contents; }
   .dl-item { padding-right: 0; }
   .post-body { font-size: 1.0625rem; }
 }
+
+/* Images aligned to the content container (not edge-to-edge) */
+.case-media, .pd-hero-media, .pd-shots {
+  width: min(calc(100% - var(--gutter) * 2), var(--container));
+  margin-left: auto; margin-right: auto;
+}
+.case-media { aspect-ratio: 16 / 9.5; }
+/* Lead text + button stacked and left-aligned in the right column */
+.sec-aside { justify-self: end; max-width: 360px; display: flex; flex-direction: column; align-items: flex-start; }
+.sec-aside p { max-width: none; }
+@media (max-width: 991px) { .sec-aside { justify-self: start; } }
