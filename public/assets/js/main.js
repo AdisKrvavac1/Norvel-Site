@@ -87,15 +87,26 @@
     inView.forEach(el => io.observe(el));
   } else inView.forEach(el => el.classList.add("is-in"));
 
-  /* Hero glow follows the pointer */
-  const hero = $(".hero-head"), glow = $(".hero-glow");
-  if (hero && glow && !reduce && window.matchMedia("(pointer: fine)").matches) {
-    hero.addEventListener("pointermove", e => {
-      const r = hero.getBoundingClientRect();
-      glow.style.left = `${e.clientX - r.left}px`;
-      glow.style.top = `${e.clientY - r.top}px`;
+  /* Hero custom cursor: lime dot + trailing ring (fine pointers only) */
+  const hc = $(".hero-cursor");
+  if (hc && !reduce && window.matchMedia("(pointer: fine)").matches) {
+    const heroEl = hc.parentElement, ring = $(".hc-ring", hc), dot = $(".hc-dot", hc);
+    let x = 0, y = 0, rx = 0, ry = 0, on = false, raf = 0;
+    const loop = () => {
+      rx += (x - rx) * 0.16; ry += (y - ry) * 0.16;
+      dot.style.transform = `translate(${x}px, ${y}px)`;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      raf = on ? requestAnimationFrame(loop) : 0;
+    };
+    heroEl.addEventListener("pointermove", e => {
+      const r = heroEl.getBoundingClientRect(); x = e.clientX - r.left; y = e.clientY - r.top;
+      if (!on) { on = true; rx = x; ry = y; hc.classList.add("is-on"); raf = raf || requestAnimationFrame(loop); }
+      hc.classList.toggle("is-link", !!e.target.closest("a, button"));
     });
-    hero.addEventListener("pointerleave", () => { glow.style.left = "50%"; glow.style.top = "55%"; });
+    heroEl.addEventListener("pointerleave", () => { on = false; hc.classList.remove("is-on", "is-link"); });
+    heroEl.addEventListener("pointerdown", () => { hc.classList.add("is-down"); });
+    window.addEventListener("pointerup", () => hc.classList.remove("is-down"));
+    heroEl.classList.add("has-cursor");
   }
 
   /* Marquee: duplicate items for a seamless loop */

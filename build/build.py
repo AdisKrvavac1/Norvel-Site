@@ -346,9 +346,9 @@ def page_home():
 <main id="main">
   <section class="hero">
     <canvas class="hero-dots" aria-hidden="true"></canvas>
+    <div class="hero-cursor" aria-hidden="true"><span class="hc-ring"></span><span class="hc-dot"></span></div>
     <div class="container">
       <div class="hero-head">
-        <div class="hero-glow" aria-hidden="true"></div>
         <span class="eyebrow">{e(HERO['eyebrow'])}</span>
         <h1 class="h1 hero-title"><span class="line">{e(HERO['line1'])}</span><span class="line"><span class="glow-word">{e(HERO['line2'])}</span></span></h1>
         <p class="hero-sub">{e(HERO['sub'])}</p>
