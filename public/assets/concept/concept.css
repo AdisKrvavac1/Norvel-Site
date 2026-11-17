@@ -638,3 +638,29 @@ body.lock{overflow:hidden}
  .pv-ds{left:8%;width:84%;top:20%}
  .pv-chip{right:6%;bottom:8%}
 }
+/* web design frames: JS drives motion directly */
+.frm{transition:none}
+/* AI explores card */
+.vizai{left:0;right:0;bottom:0;height:240px;overflow:hidden}
+.vizai .pgr{inset:-40px}
+.vizai .sc{left:0;top:0}
+.aip{left:8px;top:22px;width:180px;padding:14px}
+.aitype{min-height:30px;font-size:11.5px!important;color:var(--ink)!important;font-weight:500;line-height:1.35}
+.aitype:after{content:"▍";color:var(--lime2);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.aibar{height:6px;border-radius:3px;background:var(--line);margin:10px 0 6px;overflow:hidden}.aibar i{display:block;height:100%;width:0;background:var(--lime)}
+.aip small{font-size:10px;color:var(--muted)}
+.aig{position:absolute;left:205px;top:18px;display:grid;grid-template-columns:repeat(5,46px);gap:10px 6px}
+.aig i{position:relative;height:40px;border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.08),0 10px 20px -12px rgba(15,23,42,.35);opacity:0;transform:translateY(10px) scale(.9);transition:opacity .35s,transform .35s cubic-bezier(.3,1.4,.5,1),box-shadow .3s}
+.aig i.on{opacity:1;transform:none}
+.aig i b{position:absolute;left:6px;top:6px;width:20px;height:4px;border-radius:2px;background:var(--ink)}
+.aig i u{position:absolute;left:6px;right:6px;top:14px;height:3px;border-radius:2px;background:var(--line)}
+.aig i s{position:absolute;left:6px;right:6px;bottom:6px;height:12px;border-radius:3px;background:var(--c)}
+.aig i.dim{opacity:.35}
+.aig i.pick{transform:scale(1.18);box-shadow:0 0 0 2px var(--ink),0 0 0 6px var(--lime),0 16px 30px -10px rgba(15,23,42,.45);z-index:2}
+.aicur{position:absolute;left:0;top:0;z-index:3;transition:opacity .3s}
+.aicur em{position:absolute;left:14px;top:12px;font-style:normal;font-size:10px;font-weight:600;background:var(--ink);color:var(--lime);border-radius:6px;padding:3px 7px;white-space:nowrap}
+.aiok{right:12px;bottom:20px;display:flex;gap:8px;align-items:center;font-size:12px;font-weight:600;padding:9px 13px;border-radius:999px;opacity:0;transform:translateY(10px);transition:opacity .35s,transform .35s}
+.aiok b{width:18px;height:18px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-size:10px}
+.aiok.on{opacity:1;transform:none}
+@media(max-width:760px){.b.c4:has(.vizai){min-height:400px}.vizai{height:230px}}

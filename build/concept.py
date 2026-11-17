@@ -61,7 +61,12 @@ def services_bento():
   <div class="b c3" data-rv><h3>{e(b_t)}</h3><p>{e(b_d)}</p><div class="viz"><div class="marks" id="marks"></div></div></div>
   <div class="b c3" data-rv><h3>{e(w_t)}</h3><p>{e(w_d)}</p><div class="viz"><div class="frames" id="frames"></div></div></div>
   <div class="b c3" data-rv><h3>{e(d_t)}</h3><p>{e(d_d)}</p><div class="viz"><div class="dev"><div class="code" id="code"></div><div class="prev"><div class="mini"><i class="h"></i><i></i><i style="width:60%"></i><i class="g"></i></div><span class="pub" id="pub">Published</span></div></div></div></div>
-  <div class="b c4" data-rv><h3>AI explores. Seniors decide.</h3><p>Ten directions in the time an agency books a kickoff — then one senior call.</p><div class="viz"><svg id="fan" viewBox="0 0 500 190" class="fan"></svg></div></div>
+  <div class="b c4" data-rv><h3>AI explores. Seniors decide.</h3><p>Ten directions in the time an agency books a kickoff — then one senior call.</p><div class="viz vizai"><div class="pgr pgr-c"></div><div class="sc" data-w="470" data-h="230">
+    <div class="mk aip"><h6>Brief</h6><p class="aitype" id="aitype"></p><div class="aibar"><i id="aibar"></i></div><small id="aistat">Waiting for brief…</small></div>
+    <div class="aig" id="aig"></div>
+    <div class="aicur" id="aicur"><svg width="16" height="16" viewBox="0 0 18 18"><path d="M2 1l13 7-6 1.6L6.4 16z" fill="#0b0e13" stroke="#fff" stroke-width="1.2"/></svg><em>Senior designer</em></div>
+    <div class="mk aiok" id="aiok"><b>✓</b>Direction 07 · approved</div>
+  </div></div></div>
   <div class="b c4" data-rv><h3>Products we build</h3><p>Our own SaaS — Finovo, InvoicePro, NoWay! — built by the same senior team.</p><div class="viz"><div class="dash"><div class="chart"><small>Finovo · revenue</small><b id="rev">€48,210</b><svg id="ch" viewBox="0 0 260 110" preserveAspectRatio="none"></svg></div><div class="inv"><small>InvoicePro · latest</small><div id="rows"></div></div></div></div></div>'''
 
 

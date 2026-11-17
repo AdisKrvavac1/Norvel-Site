@@ -73,20 +73,32 @@
   $("#rows").innerHTML = [["Acme Studio", "€2,400"], ["MM Mostar", "€860"], ["Lumen Labs", "€5,100"], ["North & Co", "€1,750"]]
     .map((r, i) => `<div class="row" style="animation-delay:${i * .35}s"><span>${r[0]}</span><span>${r[1]}<em>Paid</em></span></div>`).join("");
   const P = [90, 82, 86, 70, 74, 58, 62, 44, 40, 30, 26, 14];
+  const aig = $("#aig"), AIC = ["#c8f03c", "#9fd8ff", "#6ef2c9", "#d4c2ff", "#ffd36e", "#0b0e13", "#c8f03c", "#9fd8ff", "#6ef2c9", "#d4c2ff"];
+  aig.innerHTML = AIC.map((c, i) => `<i style="--c:${c}"><b></b><u></u><s></s></i>`).join("");
+  const aiT = [...aig.children], aitype = $("#aitype"), aibar = $("#aibar"), aistat = $("#aistat"), aicur = $("#aicur"), aiok = $("#aiok");
+  const BRIEF = "Rebrand + website for a fintech startup";
+  function aiScene(t) {
+    const k = t % 8, out = k > 7.5, sg = (a, b) => Math.max(0, Math.min(1, (k - a) / (b - a)));
+    aitype.textContent = out ? "" : BRIEF.slice(0, Math.round(BRIEF.length * sg(.2, 1.3)));
+    aibar.style.width = (out ? 0 : sg(1.3, 2.6) * 100) + "%";
+    aistat.textContent = k < 1.3 ? "Writing brief…" : k < 2.7 ? "AI generating 10 directions…" : k < 4.3 ? "10 directions ready" : "Senior pick made";
+    aiT.forEach((el, i) => { const on = !out && k > 1.6 + i * .11; el.className = on ? (k > 4.3 ? (i === 6 ? "on pick" : "on dim") : "on") : ""; });
+    const cp = sg(3.1, 4.2), ce = cp < .5 ? 4 * cp * cp * cp : 1 - Math.pow(-2 * cp + 2, 3) / 2;
+    const tx = 205 + (6 % 5) * 52 + 18, ty = 18 + Math.floor(6 / 5) * 50 + 22;
+    aicur.style.transform = `translate(${(120 + (tx - 120) * ce).toFixed(1)}px,${(190 + (ty - 190) * ce).toFixed(1)}px)`;
+    aicur.style.opacity = !out && k > 2.9 && k < 6.8 ? 1 : 0;
+    aiok.classList.toggle("on", !out && k > 4.8);
+  }
   function bento(t) {
     const k = t % 6;
     markEls.forEach((el, i) => el.classList.toggle("sel", i === Math.floor(t / 1.2) % 8));
-    frmEls.forEach((f, i) => { const ph = (t / 2 + i) % 3; f.style.transform = `translate(${ph * 48}px,${ph * 14}px) scale(${1 - ph * .06})`; f.style.zIndex = 3 - Math.floor(ph); f.style.opacity = 1 - ph * .25; });
-    const n = Math.min(CODE.length, Math.floor(k * 1.6)); code.innerHTML = CODE.slice(0, n).join("<br>") + (k % 1 < .5 ? "▍" : ""); pub.style.opacity = n >= CODE.length ? 1 : 0;
-    const cx = 70, cy = 95, rk = Math.min(1, k / 1.2), pick = k > 2.4;
-    let s = `<rect x="${cx - 44}" y="${cy - 32}" width="88" height="64" rx="12" fill="#0b0e13"/><circle cx="${cx}" cy="${cy}" r="${11 + Math.sin(t * 3) * .6}" fill="#c8f03c"/>`;
-    for (let j = 0; j < 10; j++) {
-      const a = (-50 + j * 100 / 9) * Math.PI / 180, ex = cx + 44 + 260 * Math.cos(a) * rk, ey = cy + 120 * Math.sin(a) * rk, sel = j === 6;
-      s += `<line x1="${cx + 44}" y1="${cy}" x2="${ex}" y2="${ey}" stroke="${pick && !sel ? "#e3e7ec" : "#6f9112"}" stroke-width="1.2" stroke-dasharray="3 5"/>`;
-      s += `<rect x="${ex - 11}" y="${ey - 11}" width="22" height="22" rx="6" fill="${pick && sel ? "#c8f03c" : "#fff"}" stroke="${pick && !sel ? "#e3e7ec" : "#0b0e13"}" stroke-width="1.3"/>`;
-      if (pick && sel) s += `<circle cx="${ex}" cy="${ey}" r="22" fill="none" stroke="#0b0e13" stroke-width="1.4"/><text x="${ex + 30}" y="${ey + 4}" font-size="11" font-weight="600" font-family="Inter,Arial" fill="#0b0e13">Senior pick</text>`;
+    { // web design frames: eased step every 1.6 s, computed per frame (no CSS transition lag)
+      const st = t / 1.6, n = Math.floor(st), fr = st - n, e = fr < .5 ? 4 * fr * fr * fr : 1 - Math.pow(-2 * fr + 2, 3) / 2, step = n + Math.min(1, e * 1.25);
+      frmEls.forEach((f, i) => { const s2 = ((i - step) % 3 + 3) % 3; const fade = s2 > 2 ? 1 - (s2 - 2) : (s2 < .4 ? s2 / .4 * .0 + 1 : 1);
+        f.style.transform = `translate(${s2 * 48}px,${s2 * 14}px) scale(${1 - s2 * .06})`; f.style.zIndex = 10 - Math.round(s2 * 3); f.style.opacity = (Math.max(0, 1 - s2 * .25) * Math.min(1, fade)).toFixed(3); });
     }
-    fan.innerHTML = s;
+    const n = Math.min(CODE.length, Math.floor(k * 1.6)); code.innerHTML = CODE.slice(0, n).join("<br>") + (k % 1 < .5 ? "▍" : ""); pub.style.opacity = n >= CODE.length ? 1 : 0;
+    aiScene(t);
     const m = Math.max(2, Math.floor(Math.min(1, k / 3) * P.length)), pts = P.slice(0, m).map((y, i) => `${i * 23.6},${y}`).join(" ");
     ch.innerHTML = `<defs><linearGradient id="cg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c8f03c"/><stop offset="1" stop-color="#c8f03c" stop-opacity="0"/></linearGradient></defs><polygon points="0,110 ${pts} ${(m - 1) * 23.6},110" fill="url(#cg)" opacity=".7"/><polyline points="${pts}" fill="none" stroke="#0b0e13" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
     rev.textContent = "€" + Math.round(48210 * Math.min(1, .4 + k / 5)).toLocaleString("en");
@@ -119,6 +131,11 @@
   const fitScenes = () => scs.forEach(sc => {
     const vw = sc.parentElement.clientWidth, dw = +sc.dataset.w;
     sc.style.width = dw + "px"; sc.style.height = sc.dataset.h + "px";
+    if (sc.parentElement.classList.contains("vizai")) {
+      const vh = sc.parentElement.clientHeight, dh = +sc.dataset.h, k = Math.min(1.05, (vw - 24) / dw, (vh - 12) / dh);
+      sc.style.left = ((vw - dw * k) / 2).toFixed(1) + "px"; sc.style.top = ((vh - dh * k) / 2).toFixed(1) + "px";
+      sc.style.transform = `scale(${k.toFixed(3)})`; return;
+    }
     sc.style.transform = `scale(${Math.max(.62, Math.min(1.25, vw / dw)).toFixed(3)})`;
   });
   fitScenes(); addEventListener("resize", fitScenes);
