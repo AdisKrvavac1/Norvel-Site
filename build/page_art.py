@@ -9,8 +9,7 @@ def _svg(body, label):
             '<defs><pattern id="phg" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" stroke="#eef1f4" '
             'stroke-opacity=".05" fill="none"/></pattern><radialGradient id="phl"><stop offset="0" stop-color="#c8f03c" '
             'stop-opacity=".2"/><stop offset="1" stop-color="#c8f03c" stop-opacity="0"/></radialGradient></defs>'
-            '<rect width="480" height="360" fill="#11151c" stroke="none"/><rect width="480" height="360" fill="url(#phg)" stroke="none"/>'
-            f'<circle cx="240" cy="180" r="200" fill="url(#phl)" stroke="none"/>{body}</svg>')
+            f'{body}</svg>')
 
 
 def about():

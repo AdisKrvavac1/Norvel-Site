@@ -100,9 +100,7 @@ def post_webflow_vs_wordpress():
     o = ['<defs><pattern id="pg" width="24" height="24" patternUnits="userSpaceOnUse">'
          '<path d="M24 0H0V24" stroke="#eef1f4" stroke-opacity=".05" fill="none"/></pattern>'
          '<radialGradient id="pgl"><stop offset="0" stop-color="#c8f03c" stop-opacity=".22"/><stop offset="1" stop-color="#c8f03c" stop-opacity="0"/></radialGradient></defs>',
-         '<rect width="480" height="300" fill="#11151c" stroke="none"/>',
-         '<rect width="480" height="300" fill="url(#pg)" stroke="none"/>',
-         '<circle cx="150" cy="150" r="190" fill="url(#pgl)" stroke="none"/>']
+         ]
     # left: Webflow-like — clean component blocks, lime
     x, y = 46, 58
     o.append(win(x, y, 176, 184, 1))

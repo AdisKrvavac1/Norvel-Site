@@ -256,6 +256,82 @@
     let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { build(); if (staticGrid()) { stop(); draw(performance.now()); } }, 150); });
   }
 
+  /* Contact: messages flying along a dashed route from edge to edge.
+     Hover speeds them up, clicking sends an extra message, stations light up as planes pass. */
+  const flight = $(".flight");
+  if (flight) {
+    const svg = $(".flight-svg", flight), NS = "http://www.w3.org/2000/svg";
+    const mk = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent && parent.appendChild(n); return n; };
+    const ICONS = {
+      mail: "M-9 -6 h18 v12 h-18 Z M-9 -6 L0 1 L9 -6",
+      chat: "M-9 -7 h18 v11 h-9 l-5 4 v-4 h-4 Z",
+      at: "M4 0 a4 4 0 1 1 -1.2 -2.9 M4 -3 v4.5 a2.5 2.5 0 0 0 5 0 V0 a9 9 0 1 0 -3.5 7.1",
+      bolt: "M2 -9 L-5 1 h5 l-2 8 L5 -2 h-5 Z",
+      check: "M-6 0 l4 4 l8 -9"
+    };
+    const STATIONS = [[0.14, "mail", "Brief"], [0.32, "chat", "Call"], [0.5, "bolt", "Plan"], [0.68, "at", "Kickoff"], [0.86, "check", "Launch"]];
+    let W, H, path, len, nodes = [], planes = [], trail = [], sparks = [], boost = 1, target = 1, last = 0, running = false;
+    const plane = ghost => { const g = mk("g", { class: "fl-plane" + (ghost ? " ghost" : "") }, svg); mk("path", { d: "M-13 -7 L13 0 L-13 7 L-7 0 Z" }, g); return g; };
+    const build = () => {
+      W = flight.clientWidth; H = flight.clientHeight;
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = "";
+      const amp = H * 0.26, mid = H * 0.55, step = Math.max(260, W / 5);
+      let d = `M -60 ${mid}`, x = -60, up = true;
+      while (x < W + 60) { const nx = x + step; d += ` C ${x + step * .5} ${up ? mid - amp : mid + amp}, ${nx - step * .5} ${up ? mid - amp : mid + amp}, ${nx} ${mid}`; x = nx; up = !up; }
+      path = mk("path", { d, class: "fl-path" }, svg); len = path.getTotalLength();
+      sparks = Array.from({ length: Math.round(W / 60) }, () => mk("circle", { class: "fl-spark", cx: Math.random() * W, cy: Math.random() * H, r: Math.random() * 1.2 + .4, opacity: Math.random() * .4 + .1 }, svg));
+      sparks.forEach(sp => sp._v = Math.random() * 6 + 4);
+      const lenAtX = x => { let lo = 0, hi = len; for (let k = 0; k < 30; k++) { const m = (lo + hi) / 2; path.getPointAtLength(m).x < x ? (lo = m) : (hi = m); } return lo; };
+      const list = W < 700 ? STATIONS.filter((_, i) => i % 2 === 0) : STATIONS;
+      nodes = list.map(([f, ico, label], i) => {
+        const at = lenAtX(W * (0.1 + 0.8 * (i / (list.length - 1))));
+        const p = path.getPointAtLength(at), outer = mk("g", { transform: `translate(${p.x} ${p.y})` }, svg), g = mk("g", { class: "fl-node" }, outer);
+        mk("circle", { class: "fl-halo", r: 20 }, g); mk("circle", { class: "fl-ring", r: 20 }, g); mk("path", { class: "fl-ico", d: ICONS[ico] }, g);
+        const t = mk("text", { class: "fl-label", y: p.y < H / 2 ? 40 : -32 }, g); t.textContent = label;
+        return { g, x: p.x, y: p.y, at, hitUntil: 0 };
+      });
+      trail = Array.from({ length: 14 }, (_, i) => mk("circle", { class: "fl-trail", r: 2.4 - i * .14, opacity: 0 }, svg));
+      const old = planes; planes = [];
+      const base = [{ s: 0, v: 150 }, { s: len * .38, v: 105, ghost: true }, { s: len * .7, v: 190 }];
+      (old.length ? old.map(o => ({ s: o.s % len, v: o.v, ghost: o.ghost, extra: o.extra })) : base).forEach(p => planes.push({ ...p, g: plane(p.ghost) }));
+      const hint = mk("text", { class: "fl-hint", x: W - 24, y: H - 14, "text-anchor": "end" }, svg); hint.textContent = "Click to send a message";
+    };
+    const frame = now => {
+      const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+      boost += (target - boost) * 0.06;
+      planes.forEach((p, i) => {
+        p.s += p.v * boost * dt;
+        if (p.s > len) { if (p.extra) { p.g.remove(); p.dead = true; return; } p.s -= len; }
+        const a = path.getPointAtLength(p.s), b = path.getPointAtLength(Math.min(len, p.s + 2));
+        const ang = Math.atan2(b.y - a.y, b.x - a.x) * 57.2958;
+        p.g.setAttribute("transform", `translate(${a.x} ${a.y}) rotate(${ang})`);
+        if (i === 0) { p.hist = p.hist || []; p.hist.unshift([a.x, a.y]); p.hist.length = Math.min(p.hist.length, 42);
+          trail.forEach((c, k) => { const h = p.hist[k * 3]; if (h) { c.setAttribute("cx", h[0]); c.setAttribute("cy", h[1]); c.setAttribute("opacity", (.6 - k * .04).toFixed(2)); } }); }
+        nodes.forEach(n => { if (Math.abs(p.s - n.at) < 14 && now > n.hitUntil) { n.hitUntil = now + 900; n.g.classList.remove("hit"); void n.g.getBBox(); n.g.classList.add("hit"); } });
+      });
+      planes = planes.filter(p => !p.dead);
+      nodes.forEach(n => { if (now > n.hitUntil) n.g.classList.remove("hit"); });
+      sparks.forEach(sp => { let x = +sp.getAttribute("cx") + sp._v * boost * dt; if (x > W) x = 0; sp.setAttribute("cx", x.toFixed(1)); });
+      if (running) requestAnimationFrame(frame);
+    };
+    const start = () => { if (!running) { running = true; last = 0; requestAnimationFrame(frame); } };
+    const stop = () => { running = false; };
+    build();
+    if (reduce) { frame(performance.now()); }
+    else {
+      flight.addEventListener("pointerenter", () => (target = 2.4));
+      flight.addEventListener("pointerleave", () => (target = 1));
+      flight.addEventListener("pointermove", e => {
+        const r = flight.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+        nodes.forEach(n => { const d = Math.hypot(n.x - x, n.y - y), k = Math.max(0, 1 - d / 160); n.g.style.transform = `translateY(${-k * 10}px)`; });
+      });
+      flight.addEventListener("click", () => { if (planes.length < 9) planes.push({ s: 0, v: 260 + Math.random() * 80, extra: true, g: plane(Math.random() > .5) }); });
+      new IntersectionObserver(([en]) => (en.isIntersecting ? start() : stop())).observe(flight);
+      document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+    }
+    let rt2; window.addEventListener("resize", () => { clearTimeout(rt2); rt2 = setTimeout(build, 200); });
+  }
+
   /* Footer year */
   $$("[data-year]").forEach(el => (el.textContent = new Date().getFullYear()));
 })();

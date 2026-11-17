@@ -861,7 +861,6 @@ def page_contact():
         <p class="muted ph-lead">{e(C['lead'])}</p>
         <dl class="pd-facts">{details}</dl>
         <div class="socials" style="margin-top:2.5rem">{socials}</div>
-        <div class="ph-art ph-art--contact" data-fade>{PAGE_ARTS['contact']}</div>
       </div>
       <form class="contact-form" action="{action}" method="post" data-form data-email="{SITE['email']}" data-endpoint="{e(C['form_endpoint'])}" novalidate>
         <div class="f-row">
@@ -880,6 +879,7 @@ def page_contact():
       </form>
     </div>
   </section>
+  <section class="flight" aria-label="Messages on their way to Norvel"><svg class="flight-svg" aria-hidden="true"></svg></section>
   {faq_block(FAQS['items'][:4])}
 </main>
 """
