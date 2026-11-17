@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from data import *          # noqa: F401,F403
 from art import COMPS
 from principle_art import ARTS as PRINCIPLE_ARTS, POST_ARTS
+from page_art import PAGE_ARTS
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PUB = os.path.join(ROOT, "public")
@@ -465,16 +466,9 @@ def page_projects():
       </article>""" for n, p in enumerate(PROJECTS))
     body = f"""{nav()}
 <main id="main">
-  <section class="page-hero">
-    <div class="container">
-      <div class="sec-head">
-        <div><span class="eyebrow">Work</span><h1 class="h1">{e(PROJECTS_PAGE['title'])}</h1></div>
-        <p class="muted" data-fade>{e(PROJECTS_PAGE['lead'])}</p>
-      </div>
-    </div>
+  {page_hero("Work", PROJECTS_PAGE['title'], PROJECTS_PAGE['lead'], 'work', inner=f'''
     <div class="case-list case-list--page">{cards}
-    </div>
-  </section>
+    </div>''')}
   {stairs('var(--ink)', 'var(--fog)')}
   {cta_section().replace('class="section light cta"', 'class="section light cta" style="padding-top:calc(var(--section) - 96px)"')}
   {stairs('var(--fog)', 'var(--ink)', rev=True)}
@@ -621,14 +615,15 @@ Ways to work together: fixed-scope projects, monthly retainers, or a fractional 
 
 # ---------- shared section builders for inner pages ----------
 
-def page_hero(eyebrow, title, lead):
+def page_hero(eyebrow, title, lead, art=None, inner=""):
+    art_html = f'<div class="ph-art" data-fade>{PAGE_ARTS[art]}</div>' if art else ""
     return f"""<section class="page-hero">
     <div class="container">
-      <div class="sec-head" style="padding-bottom:clamp(3rem,6vw,5rem)">
-        <div><span class="eyebrow">{e(eyebrow)}</span><h1 class="h1" style="margin-top:1.5rem">{e(title)}</h1></div>
-        <p class="muted" data-fade>{e(lead)}</p>
+      <div class="ph-grid{' ph-grid--art' if art else ''}">
+        <div class="ph-copy"><span class="eyebrow">{e(eyebrow)}</span><h1 class="ph-title">{e(title)}</h1><p class="muted ph-lead" data-fade>{e(lead)}</p></div>
+        {art_html}
       </div>
-    </div>
+    </div>{inner}
   </section>"""
 
 
@@ -704,7 +699,7 @@ def page_about():
     story = "".join(f"<p>{e(x)}</p>" for x in A["story"])
     body = f"""{nav("about")}
 <main id="main">
-  {page_hero(A['eyebrow'], A['title'], A['lead'])}
+  {page_hero(A['eyebrow'], A['title'], A['lead'], 'about')}
   <section class="container"><div class="pd-wide" data-fade><img src="{art('pattern', 1600, 700, 'about-wide')}" alt="" width="1600" height="700"></div></section>
 
   <section class="section">
@@ -786,7 +781,7 @@ def page_services():
         </div>""" for i, (t, d, items) in enumerate(S["engagements"]))
     body = f"""{nav("services")}
 <main id="main">
-  {page_hero(S['eyebrow'], S['title'], S['lead'])}
+  {page_hero(S['eyebrow'], S['title'], S['lead'], 'services')}
   {stairs('var(--ink)', 'var(--fog)')}
   <section class="section light pillars" style="padding-top:calc(var(--section) - 96px)">
     <div class="container">{pillars}
@@ -818,7 +813,7 @@ def page_testimonials():
     grid = "".join(testimonial_card(t) for t in TESTIMONIALS)
     body = f"""{nav("testimonials")}
 <main id="main">
-  {page_hero(T['eyebrow'], T['title'], T['lead'])}
+  {page_hero(T['eyebrow'], T['title'], T['lead'], 'testimonials')}
   <section class="section" style="padding-top:0">
     <div class="container">
       <div class="slider" data-slider tabindex="0" aria-label="Testimonials">
@@ -862,10 +857,11 @@ def page_contact():
     <div class="container contact-grid">
       <div class="contact-aside">
         <span class="eyebrow">{e(C['eyebrow'])}</span>
-        <h1 class="h1" style="margin-top:1.5rem">{e(C['title'])}</h1>
-        <p class="muted" style="margin-top:2rem;max-width:420px;line-height:1.5">{e(C['lead'])}</p>
+        <h1 class="ph-title">{e(C['title'])}</h1>
+        <p class="muted ph-lead">{e(C['lead'])}</p>
         <dl class="pd-facts">{details}</dl>
         <div class="socials" style="margin-top:2.5rem">{socials}</div>
+        <div class="ph-art ph-art--contact" data-fade>{PAGE_ARTS['contact']}</div>
       </div>
       <form class="contact-form" action="{action}" method="post" data-form data-email="{SITE['email']}" data-endpoint="{e(C['form_endpoint'])}" novalidate>
         <div class="f-row">
@@ -1013,7 +1009,7 @@ def page_insights():
                          "datePublished": q["date"]} for q in POSTS]}]
     body = f"""{nav()}
 <main id="main">
-  {page_hero("Insights", "Notes on design, Webflow and building for the web", "Practical thinking from the studio — how we approach websites, brands and Webflow builds for SaaS, AI and B2B teams.")}
+  {page_hero("Insights", "Notes on design, Webflow and building for the web", "Practical thinking from the studio — how we approach websites, brands and Webflow builds for SaaS, AI and B2B teams.", "insights")}
   <section class="section" style="padding-top:0"><div class="container post-list">{cards}</div></section>
   {end_cta()}
 </main>
@@ -1035,12 +1031,12 @@ def page_post(q):
     body = f"""{nav()}
 <main id="main">
   <article class="post">
-    <header class="container post-head">
+    <header class="container"><div class="ph-grid ph-grid--art post-hero"><div class="post-head">
       <a class="link-arrow u-line" href="/insights/">← Insights</a>
       <span class="eyebrow" style="margin-top:2rem">{e(q['category'])}</span>
-      <h1 class="h2" style="margin-top:1.25rem">{e(q['title'])}</h1>
+      <h1 class="ph-title" style="margin-top:1.25rem">{e(q['title'])}</h1>
       <div class="post-byline"><span>By {e(AUTHOR['name'])}</span><span>{nice}</span><span>{e(q['read'])}</span></div>
-    </header>
+    </div><div class="ph-art" data-fade>{POST_ARTS.get(q['slug'], '')}</div></div></header>
     <div class="container"><div class="post-body">{render_body(q['body'])}</div></div>
   </article>
   {end_cta()}
