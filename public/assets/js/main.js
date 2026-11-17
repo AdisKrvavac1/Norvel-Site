@@ -89,7 +89,7 @@
 
   /* Hero custom cursor: lime dot + trailing ring (fine pointers only) */
   const hc = $(".hero-cursor");
-  if (hc && !reduce && window.matchMedia("(pointer: fine)").matches) {
+  if (hc && !reduce && window.matchMedia("(pointer: fine) and (hover: hover) and (min-width: 1025px)").matches) {
     const heroEl = hc.parentElement, ring = $(".hc-ring", hc), dot = $(".hc-dot", hc);
     let x = 0, y = 0, rx = 0, ry = 0, on = false, raf = 0;
     const loop = () => {
@@ -229,7 +229,7 @@
           const age = (now - rp.t) / 1000, front = age * 520, dd = Math.hypot(d.x - rp.x, d.y - rp.y), band = Math.abs(dd - front);
           if (band < 60) { const k = (1 - band / 60) * (1 - age / 1.6); tx += ((d.x - rp.x) / (dd || 1)) * 14 * k; ty += ((d.y - rp.y) / (dd || 1)) * 14 * k; glow = Math.max(glow, k); }
         }
-        if (!reduce) { ty += Math.sin(d.x * 0.012 + t * 0.9) * 1.6 + Math.cos(d.y * 0.015 + t * 0.6) * 1.2; }
+        if (!running) { /* static frame */ } else { ty += Math.sin(d.x * 0.012 + t * 0.9) * 1.6 + Math.cos(d.y * 0.015 + t * 0.6) * 1.2; }
         d.dx += (tx - d.dx) * 0.14; d.dy += (ty - d.dy) * 0.14; d.a += (glow - d.a) * 0.12;
         const a = d.a;
         ctx.beginPath();
@@ -242,7 +242,9 @@
     const start = () => { if (!running && visible) { running = true; requestAnimationFrame(draw); } };
     const stop = () => { running = false; };
     build();
-    if (reduce) { draw(performance.now()); }
+    // Phones & tablets (touch / no hover, or <= 1024px): static dot grid only, no interaction or animation
+    const staticGrid = () => reduce || window.matchMedia("(hover: none), (pointer: coarse), (max-width: 1024px)").matches;
+    if (staticGrid()) { draw(performance.now()); }
     else {
       start();
       hero.addEventListener("pointermove", e => { const r = canvas.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
@@ -251,7 +253,7 @@
       if ("IntersectionObserver" in window) new IntersectionObserver(([en]) => { visible = en.isIntersecting; visible ? start() : stop(); }).observe(canvas);
       document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
     }
-    let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { build(); if (reduce) draw(performance.now()); }, 150); });
+    let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { build(); if (staticGrid()) { stop(); draw(performance.now()); } }, 150); });
   }
 
   /* Footer year */
