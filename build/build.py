@@ -57,7 +57,7 @@ def org_node():
         "alternateName": "Norvel",
         "url": SITE["url"] + "/",
         "logo": {"@type": "ImageObject", "url": SITE["url"] + "/assets/img/norvel-logo-lime.svg"},
-        "image": SITE["url"] + "/assets/img/og.png",
+        "image": SITE["url"] + "/assets/img/og-daylight.png",
         "email": SITE["email"],
         "description": SITE["description"],
         "slogan": "Senior design. Shipped at AI speed.",
@@ -189,7 +189,7 @@ def head(title, desc, path, ld=None, crumbs=None, og_type="website", og_image=No
     full = title or SEO_HOME_TITLE
     desc = desc if len(desc) <= 158 else desc[:155].rsplit(" ", 1)[0] + "…"
     ld_html = jsonld(path, title or full, desc, ld or [], crumbs)
-    og_img = og_image or f"{SITE['url']}/assets/img/og.png"
+    og_img = og_image or f"{SITE['url']}/assets/img/og-daylight.png"
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1031,7 +1031,7 @@ def page_post(q):
     ld = [{"@type": "BlogPosting", "@id": SITE["url"] + path + "#article", "headline": q["title"], "description": q["description"],
            "datePublished": q["date"], "dateModified": q["date"], "url": SITE["url"] + path, "mainEntityOfPage": SITE["url"] + path,
            "author": {"@type": "Person", "name": AUTHOR["name"], "jobTitle": AUTHOR["role"], "worksFor": {"@id": ORG_ID}},
-           "publisher": {"@id": ORG_ID}, "image": SITE["url"] + "/assets/img/og.png", "articleSection": q["category"],
+           "publisher": {"@id": ORG_ID}, "image": SITE["url"] + "/assets/img/og-daylight.png", "articleSection": q["category"],
            "inLanguage": "en"}]
     body = f"""{nav()}
 <main id="main">
