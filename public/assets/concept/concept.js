@@ -32,6 +32,7 @@
     grads.forEach(g => io.observe(g.cv));
   }
 
+  const HERO = $("#site") ? (() => {
   /* hero UI (8 s loop) */
   const site = $("#site"), cur = $("#cur"), pg = $("#pg"), dep = $("#dep"), rings = $("#rings"), th = $("#th");
   const RV = [98, 100, 100, 100];
@@ -53,6 +54,10 @@
     thEls.forEach((el, i) => { el.className = k > 2 && k < 7.8 ? (i === 4 ? "pick" : "dim") : (i < lit ? "" : "dim"); });
   }
 
+  return hero;
+  })() : null;
+
+  const BENTO = $("#marks") ? (() => {
   /* bento */
   const SH = ['<circle cx="12" cy="12" r="10"/>', '<rect x="2" y="2" width="20" height="20" rx="5"/>', '<path d="M12 2l10 20H2z"/>', '<path d="M2 22V2l20 20z"/>',
     '<path d="M2 12a10 10 0 0120 0z"/><path d="M2 14h20v8H2z"/>', '<path d="M2 2h9v9H2zM13 13h9v9h-9z"/>',
@@ -85,6 +90,9 @@
     rev.textContent = "€" + Math.round(48210 * Math.min(1, .4 + k / 5)).toLocaleString("en");
   }
 
+  return bento;
+  })() : null;
+
   /* persona tabs (auto-advance until the user clicks) */
   const tabs = $$(".ptab"), panes = $$(".ppane"); let tabI = 0, tabAuto = true, tabT = 0;
   const setTab = i => { tabI = i; tabs.forEach((b, j) => { b.classList.toggle("on", j === i); b.setAttribute("aria-selected", j === i); }); panes.forEach((p, j) => p.classList.toggle("on", j === i)); };
@@ -103,6 +111,7 @@
   }
 
 
+  const PROB = $("#grows") ? (() => {
   /* ===== The problem — card scenes ===== */
   const scs = $$(".sc");
   const fitScenes = () => scs.forEach(sc => {
@@ -166,8 +175,12 @@
     ipA.textContent = Math.round(f * 100) + "%"; ibarA.style.width = f * 100 + "%";
     ibA.setAttribute("d", blobD(17, (1 - f) * .45, t)); ibA.setAttribute("fill", hn ? "#e3e7ec" : "#c8f03c");
   }
+  return problem;
+  })() : null;
+
   /* modal */
   const pm = $("#pmodal");
+  if (pm) {
   $$(".pplus").forEach(b => b.addEventListener("click", () => {
     const c = b.closest(".pcard"); $("#pme").textContent = c.dataset.eb; $("#pmt").textContent = c.querySelector("h3").textContent; $("#pmp").textContent = c.dataset.body;
     pm.hidden = false; requestAnimationFrame(() => pm.classList.add("on"));
@@ -175,14 +188,53 @@
   const closeM = () => { pm.classList.remove("on"); setTimeout(() => (pm.hidden = true), 250); };
   $("#pmx").addEventListener("click", closeM); pm.addEventListener("click", e => { if (e.target === pm) closeM(); });
   addEventListener("keydown", e => { if (e.key === "Escape" && !pm.hidden) closeM(); });
+  }
+
+
+  /* project filters */
+  $$(".fchip").forEach(b => b.addEventListener("click", () => {
+    $$(".fchip").forEach(x => x.classList.toggle("on", x === b));
+    const f = b.dataset.f;
+    $$("#pjgrid .pjcard").forEach(c => c.classList.toggle("hide", !!f && !c.dataset.cat.includes(f)));
+  }));
+
+  /* contact form: endpoint if configured, otherwise opens the email app */
+  $$("[data-cform]").forEach(form => {
+    const st = form.querySelector(".fstat");
+    form.addEventListener("submit", async ev => {
+      ev.preventDefault();
+      let ok = true;
+      form.querySelectorAll("[required]").forEach(f => { const bad = !f.value.trim() || (f.type === "email" && !/^\S+@\S+\.\S+$/.test(f.value)); f.closest(".fld").classList.toggle("err", bad); if (bad) ok = false; });
+      if (!ok) { st.textContent = "Please fill in the highlighted fields."; return; }
+      if (form._gotcha && form._gotcha.value) return;
+      const d = new FormData(form), svc = d.getAll("services").join(", "), ep = form.dataset.endpoint;
+      if (ep) {
+        st.textContent = "Sending…";
+        try { const r = await fetch(ep, { method: "POST", body: d, headers: { Accept: "application/json" } }); if (!r.ok) throw 0; form.reset(); st.textContent = "Thanks — we’ll reply within one business day."; }
+        catch (e) { st.textContent = "Something went wrong. Email us at " + form.dataset.email; }
+        return;
+      }
+      const body = `Name: ${d.get("name")}\nEmail: ${d.get("email")}\nCompany: ${d.get("company") || "-"}\nServices: ${svc || "-"}\nBudget: ${d.get("budget") || "-"}\n\n${d.get("message")}`;
+      location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent("New project — " + d.get("name"))}&body=${encodeURIComponent(body)}`;
+      st.textContent = "Opening your email app…";
+    });
+  });
+
+  /* article table of contents */
+  const tocA = $$(".toc a");
+  if (tocA.length && "IntersectionObserver" in window) {
+    const hs = tocA.map(a => document.getElementById(a.getAttribute("href").slice(1))).filter(Boolean);
+    const io2 = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) tocA.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id)); }), { rootMargin: "0px 0px -70% 0px" });
+    hs.forEach(h => io2.observe(h));
+  }
 
   /* loop */
   let lastT = 0;
   function frame(t) {
     lastT = t;
     grads.forEach(g => { if (g.vis) grad(g, t); });
-    hero(t); bento(t); problem(t);
-    if (tabAuto && t - tabT > 5) { tabT = t; setTab((tabI + 1) % tabs.length); }
+    HERO && HERO(t); BENTO && BENTO(t); PROB && PROB(t);
+    if (tabs.length && tabAuto && t - tabT > 5) { tabT = t; setTab((tabI + 1) % tabs.length); }
   }
   addEventListener("resize", () => { grads.forEach(sizeG); grads.forEach(g => grad(g, lastT)); });
   if (!isNaN(FIX)) { $$(".row").forEach(r => (r.style.animation = "none")); tabAuto = false; frame(FIX); }

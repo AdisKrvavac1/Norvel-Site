@@ -146,13 +146,25 @@ def problem_rows():
                    for l, n, r in PROBLEM["rows"])
 
 
-def page():
-    tabs, panes = personas()
+NAVL = [("Work", "/projects/", "projects"), ("Services", "/services/", "services"), ("About", "/about/", "about"),
+        ("Testimonials", "/testimonials/", "testimonials"), ("Insights", "/insights/", "insights")]
+
+
+def cta():
+    return f"""<section class="cta"><div class="grad grad-cta" aria-hidden="true"><canvas class="gcv"></canvas></div>
+  <div class="wrap ctain"><h2>{e(CTA["title"])}</h2><p>{e(CTA["copy"])}</p>
+  <div class="ctas"><a class="btn" href="/contact/">{e(CTA["button"])} {ARROW}</a><a class="btn ghost" href="mailto:{SITE["email"]}">{SITE["email"]}</a></div></div>
+</section>"""
+
+
+def shell(title, desc, body, active="", with_cta=True):
     css, js = ver("assets/concept/concept.css"), ver("assets/concept/concept.js")
-    return f'''<!doctype html>
+    links = "".join(f'<a href="{u}"{" aria-current=page" if k == active else ""}>{n}</a>' for n, u, k in NAVL)
+    html = f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Norvel — Senior design, shipped at AI speed (concept A)</title>
+<title>{e(title)} (concept A)</title>
+<meta name="description" content="{e(desc)}">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -160,15 +172,33 @@ def page():
 <link rel="stylesheet" href="/assets/concept/concept.css?v={css}">
 </head><body>
 <header class="nav" id="nav"><div class="wrap navin">
-  <a href="/concept/" class="brand">{logo()}</a>
-  <nav aria-label="Main"><a href="/projects/">Work</a><a href="/services/">Services</a><a href="#products">Products</a><a href="/about/">About</a><a href="/insights/">Insights</a></nav>
+  <a href="/" class="brand" aria-label="Norvel home">{logo()}</a>
+  <nav aria-label="Main">{links}</nav>
   <a class="btn navcta" href="/contact/">Start a project {ARROW}</a>
   <button class="burger" id="burger" aria-label="Open menu"><span></span></button>
 </div>
-<div class="mnav" id="mnav"><a href="/projects/">Work</a><a href="/services/">Services</a><a href="#products">Products</a><a href="/about/">About</a><a href="/insights/">Insights</a><a class="btn" href="/contact/">Start a project {ARROW}</a></div>
+<div class="mnav" id="mnav">{links}<a class="btn" href="/contact/">Start a project {ARROW}</a></div>
 </header>
-
 <main>
+{body}
+{cta() if with_cta else ""}
+</main>
+<footer class="foot"><div class="wrap">
+  <div class="fcols"><div>{logo()}<p>{e(HERO["intro"])}</p></div>
+    <div><h6>Studio</h6><a href="/about/">About</a><a href="/projects/">Work</a><a href="/testimonials/">Testimonials</a><a href="/insights/">Insights</a></div>
+    <div><h6>Services</h6><a href="/services/brand-identity/">Brand &amp; Identity</a><a href="/services/web-design/">Web Design</a><a href="/services/webflow-development/">Webflow Development</a></div>
+    <div><h6>Contact</h6><a href="/contact/">Start a project</a><a href="mailto:{SITE["email"]}">{SITE["email"]}</a>{"".join(f'<a href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])}</div></div>
+  <div class="fbot"><span>© 2026 Norvel Studio</span><span>Concept A — Daylight · not indexed</span></div>
+</div></footer>
+<script src="/assets/concept/concept.js?v={js}" defer></script>
+</body></html>"""
+    # keep every internal link inside the concept
+    return re.sub(r'href="/(?!concept/|assets/)([^"]*)"', r'href="/concept/\1"', html)
+
+
+def home():
+    tabs, panes = personas()
+    body = f"""
 <section class="hero">
   <div class="grad" aria-hidden="true"><canvas class="gcv" data-pal="a"></canvas></div>
   <div class="wrap hgrid">
@@ -232,27 +262,21 @@ def page():
   <div class="faqs">{faqs()}</div>
 </div></section>
 
-<section class="cta"><div class="grad grad-cta" aria-hidden="true"><canvas class="gcv" data-pal="a"></canvas></div>
-  <div class="wrap ctain"><h2>{e(CTA["title"])}</h2><p>{e(CTA["copy"])}</p>
-  <div class="ctas"><a class="btn" href="/contact/">{e(CTA["button"])} {ARROW}</a><a class="btn ghost" href="mailto:{SITE["email"]}">{SITE["email"]}</a></div></div>
-</section>
-</main>
+"""
+    return body
 
-<footer class="foot"><div class="wrap">
-  <div class="fcols"><div>{logo()}<p>{e(HERO["intro"])}</p></div>
-    <div><h6>Studio</h6><a href="/about/">About</a><a href="/projects/">Work</a><a href="/testimonials/">Testimonials</a><a href="/insights/">Insights</a></div>
-    <div><h6>Services</h6><a href="/services/">Brand &amp; Identity</a><a href="/services/">Web Design</a><a href="/services/">Webflow Development</a></div>
-    <div><h6>Contact</h6><a href="mailto:{SITE["email"]}">{SITE["email"]}</a>{"".join(f'<a href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])}</div></div>
-  <div class="fbot"><span>© 2026 Norvel Studio</span><span>Concept A — Daylight · not indexed</span></div>
-</div></footer>
-<script src="/assets/concept/concept.js?v={js}" defer></script>
-</body></html>'''
+
+def out(rel, html):
+    path = os.path.join(PUB, "concept", rel)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, "w").write(html)
 
 
 def main():
-    os.makedirs(os.path.join(PUB, "concept"), exist_ok=True)
-    open(os.path.join(PUB, "concept/index.html"), "w").write(page())
-    print("Concept A written to public/concept/index.html")
+    out("index.html", shell("Norvel — Senior design, shipped at AI speed", SITE["description"], home()))
+    import concept_pages
+    n = concept_pages.build_all(out, shell)
+    print("Concept A written:", n + 1, "pages under public/concept/")
 
 
 if __name__ == "__main__":
