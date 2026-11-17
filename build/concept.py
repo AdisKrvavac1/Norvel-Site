@@ -80,6 +80,67 @@ def faqs():
                    for i, (q, a) in enumerate(FAQS["items"]))
 
 
+
+PLUS = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+
+PCARDS = [
+    ("pa", "Two weeks from brief to live. Not twelve.", "Speed",
+     "A traditional agency spends the first month on kickoffs, decks and approvals. We go from brief to a live, production Webflow site in about two weeks — because the people designing are the people building."),
+    ("pb", "One senior team. Zero hand-offs.", "Team",
+     "Every hand-off between an account manager, a strategist, a designer and a developer loses context. At Norvel, the senior team you meet is the team doing the work, from first sketch to launch."),
+    ("pc", "10× the directions, explored before the kickoff call.", "AI-native",
+     "AI lets us prototype ten directions in the time an agency books a kickoff. Senior designers review them and pick the one worth building — the judgment is never outsourced to a model."),
+    ("pd", "Fewer status calls. More shipping.", "Process",
+     "Status meetings don’t move a project. We replace them with short weekly reviews of real, working pages you can click through."),
+    ("pe", "Your idea, intact.", "Quality",
+     "Ideas get diluted when they pass through six people. With one team end to end, what you approve on day one is what goes live."),
+]
+
+SCENES = {
+    "pa": """<div class="sc" data-w="760" data-h="380">
+  <div class="pgr pgr-a"></div>
+  <div class="mk gantt"><div class="mkbar"><i></i><i></i><i></i><span>agency-project · timeline</span></div>
+    <div class="gw"><span></span>""" + "".join(f"<em>W{i}</em>" for i in range(1, 13)) + """</div>
+    <div class="grows" id="grows"></div></div>
+  <div class="mk sprint" id="sprint"><h6>Norvel sprint</h6><p>Brief → live</p><div class="sbar"><i id="sbi"></i></div><div class="srow"><span>W1</span><span>W2</span><b class="chipok" id="sok">Shipped ✓</b></div></div>
+  <div class="phone"><div class="pscr" id="pscr"><i class="p1"></i><i class="p2"></i><i class="p3"></i><i class="p4"></i><i class="p5"></i>
+    <div class="toast" id="toast"><b>✓</b>Live · week 2</div></div></div>
+</div>""",
+    "pb": """<div class="sc" data-w="360" data-h="440">
+  <div class="pgr pgr-b"></div>
+  <div class="mk team"><h6>Your project team</h6><div id="troles"></div><div class="trow tnew" id="tnew"><span class="av lime">N</span><div><b>Norvel senior team</b><small>Strategy · design · build</small></div><em class="dl">Direct line</em></div></div>
+  <div class="mk hand"><h6>Hand-offs per project</h6>
+    <div class="hb"><span>Agency</span><div class="ht"><i id="hba"></i></div><b id="hna">0</b></div>
+    <div class="hb"><span>Norvel</span><div class="ht"><i id="hbn" class="lime"></i></div><b>0</b></div></div>
+</div>""",
+    "pc": """<div class="sc" data-w="360" data-h="250">
+  <div class="pgr pgr-c"></div>
+  <div class="mk dirs"><div class="dhead"><h6>AI explorations</h6><span id="dcount">0 / 12</span></div><div class="dgrid" id="dgrid"></div></div>
+</div>""",
+    "pd": """<div class="sc" data-w="360" data-h="250">
+  <div class="pgr pgr-d"></div>
+  <div class="mk cal"><div class="chead"><span></span><em>Mon</em><em>Tue</em><em>Wed</em><em>Thu</em><em>Fri</em></div><div class="cbody" id="cbody"></div></div>
+</div>""",
+    "pe": """<div class="sc" data-w="360" data-h="250">
+  <div class="pgr pgr-e"></div>
+  <div class="mk intact">
+    <div class="irow"><svg viewBox="-24 -24 48 48" class="iblob"><path id="ibA" fill="#e3e7ec" stroke="#0b0e13" stroke-width="1.4"/></svg><div class="im"><div class="il"><span>Agency · 6 hand-offs</span><b id="ipA">100%</b></div><div class="it"><i id="ibarA"></i></div><div class="idots" id="idots"></div></div></div>
+    <div class="irow"><svg viewBox="-24 -24 48 48" class="iblob"><circle r="17" fill="#c8f03c" stroke="#0b0e13" stroke-width="1.4"/></svg><div class="im"><div class="il"><span>Norvel · 1 team</span><b>100%</b></div><div class="it"><i class="lime" style="width:100%"></i></div><div class="idots"><i class="on"></i></div></div></div>
+  </div>
+</div>""",
+}
+
+
+def problem_cards():
+    out = []
+    for i, (k, title, eb, body) in enumerate(PCARDS):
+        size = "pc-lg" if i == 0 else ("pc-tall" if i == 1 else "pc-sm")
+        out.append(f'<article class="pcard {size}" data-rv data-eb="{e(eb)}" data-body="{e(body)}">'
+                   f'<header><h3>{e(title)}</h3><button class="pplus" aria-label="More about: {e(title)}">{PLUS}</button></header>'
+                   f'<div class="pviz2" aria-hidden="true">{SCENES[k]}</div></article>')
+    return "".join(out)
+
+
 def problem_rows():
     return "".join(f'<div class="prow" data-rv><b>{e(n)}</b><span class="pl">{e(r)}</span><span class="pr">{e(l)}</span></div>'
                    for l, n, r in PROBLEM["rows"])
@@ -88,7 +149,6 @@ def problem_rows():
 def page():
     tabs, panes = personas()
     css, js = ver("assets/concept/concept.css"), ver("assets/concept/concept.js")
-    pjs = ver("assets/concept/process-flat.js")
     return f'''<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -130,13 +190,12 @@ def page():
   <div class="wrap logos" aria-label="Selected clients"><span>Trusted by teams at</span><b>HP</b><b>a16z</b><b>Lightspeed</b><b>Lagunitas</b><b>Gyde</b><b>Playground</b><b>Hello Cake</b></div>
 </section>
 
-<section class="sec" id="problem"><div class="wrap">
-  <div class="head2"><div><div class="eyebrow">{e(PROBLEM["eyebrow"])}</div>
-    <h2>{e(PROBLEM["title_a"])} <s>{e(PROBLEM["strike"])}</s> {e(PROBLEM["title_b"])}</h2></div>
-    <p class="sub">{e(PROBLEM["lead"])}</p></div>
-  <div class="procwrap" data-rv><div class="proc" data-theme="light"><div class="proc-stage"></div></div></div>
-  <div class="prows">{problem_rows()}</div>
+<section class="sec pbsec" id="problem"><div class="wrap">
+  <div class="eyebrow">{e(PROBLEM["eyebrow"])}</div>
+  <h2 class="lead2">{e(PROBLEM["title_a"])} <s>{e(PROBLEM["strike"])}</s> {e(PROBLEM["title_b"])} <span>{e(PROBLEM["lead"])}</span></h2>
+  <div class="pgrid">{problem_cards()}</div>
 </div></section>
+<div class="pmodal" id="pmodal" hidden><div class="pmbox" role="dialog" aria-modal="true" aria-labelledby="pmt"><button class="pmx" id="pmx" aria-label="Close">×</button><div class="eyebrow" id="pme"></div><h3 id="pmt"></h3><p id="pmp"></p><a class="btn" href="/contact/">Start a project {ARROW}</a></div></div>
 
 <section class="sec soft" id="work"><div class="wrap">
   <div class="head2"><div><div class="eyebrow">Selected work</div><h2>Websites for teams building what’s next.</h2></div>
@@ -187,7 +246,6 @@ def page():
   <div class="fbot"><span>© 2026 Norvel Studio</span><span>Concept A — Daylight · not indexed</span></div>
 </div></footer>
 <script src="/assets/concept/concept.js?v={js}" defer></script>
-<script src="/assets/concept/process-flat.js?v={pjs}" defer></script>
 </body></html>'''
 
 

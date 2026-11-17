@@ -102,12 +102,86 @@
     (function f(n) { const k = clamp((n - t0) / 1200); b.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))) + suf; if (k < 1) requestAnimationFrame(f); })(t0);
   }
 
+
+  /* ===== The problem — card scenes ===== */
+  const scs = $$(".sc");
+  const fitScenes = () => scs.forEach(sc => {
+    const vw = sc.parentElement.clientWidth, dw = +sc.dataset.w;
+    sc.style.width = dw + "px"; sc.style.height = sc.dataset.h + "px";
+    sc.style.transform = `scale(${Math.max(.62, Math.min(1.25, vw / dw)).toFixed(3)})`;
+  });
+  fitScenes(); addEventListener("resize", fitScenes);
+  const GR = [["Brief", 0, 1.5], ["Account mgr", 1, 2], ["Strategy", 2.5, 2.5], ["Design", 4.5, 3], ["Dev", 7, 3.2], ["QA", 9.5, 1.3], ["Revisions", 10.2, 1.8, "rev"]];
+  const grows = $("#grows");
+  grows.innerHTML = GR.map(r => `<div class="grow"><span>${r[0]}</span><div class="gtrack"><i class="${r[3] || ""}"></i></div></div>`).join("");
+  const gbars = $$("#grows i");
+  const sbi = $("#sbi"), sok = $("#sok"), pscr = $("#pscr"), toast = $("#toast");
+  const ROLES = [["AM", "Account manager", "Kickoff"], ["ST", "Strategist", "Brief v2"], ["DS", "Designer", "Hand-off"], ["DV", "Developer", "Hand-off"], ["QA", "QA", "Back to design"]];
+  $("#troles").innerHTML = ROLES.map(r => `<div class="trow"><span class="av">${r[0]}</span><div><b>${r[1]}</b><small>Agency team</small></div><em>${r[2]}</em></div>`).join("");
+  const trows = $$("#troles .trow"), tnew = $("#tnew"), hba = $("#hba"), hna = $("#hna"), hbn = $("#hbn");
+  const dgrid = $("#dgrid"), DC = ["#c8f03c", "#9fd8ff", "#6ef2c9", "#d4c2ff", "#ffd36e", "#0b0e13"];
+  dgrid.innerHTML = Array.from({ length: 12 }, (_, i) => `<i style="--c:${DC[i % 6]}"></i>`).join("");
+  const tiles = [...dgrid.children], dcount = $("#dcount");
+  const cbody = $("#cbody");
+  const OLD = [[0, .02, .2, "Kickoff"], [0, .5, .18, "Status call"], [1, .1, .22, "Brief review"], [1, .62, .18, "Sync"], [2, .02, .18, "Status call"], [2, .3, .26, "Stakeholder deck"], [2, .7, .2, "Approval"],
+    [3, .12, .2, "Sync"], [3, .45, .22, "Feedback round"], [4, .05, .18, "Status call"], [4, .38, .2, "Re-brief"], [4, .7, .2, "Approval"]];
+  const NEW = [[2, .3, .22, "Weekly review", "new"], [4, .55, .22, "Shipped ✓", "ship"]];
+  cbody.innerHTML = ["9:00", "11:00", "13:00", "15:00"].map((h, i) => `<span class="tl" style="grid-column:1;grid-row:${i + 1}">${h}</span>`).join("") +
+    OLD.map(o => `<div class="cev old" style="left:calc(30px + (100% - 30px) * ${o[0]} / 5 + 2px);width:calc((100% - 30px) / 5 - 4px);top:${o[1] * 100}%;height:${o[2] * 100}%">${o[3]}</div>`).join("") +
+    NEW.map(o => `<div class="cev ${o[4]}" style="left:calc(30px + (100% - 30px) * ${o[0]} / 5 + 2px);width:calc((100% - 30px) / 5 - 4px);top:${o[1] * 100}%;height:${o[2] * 100}%">${o[3]}</div>`).join("");
+  cbody.style.gridTemplateRows = "repeat(4,1fr)";
+  const cold = $$("#cbody .cev.old"), cnew = $$("#cbody .cev.new, #cbody .cev.ship");
+  const ibA = $("#ibA"), ipA = $("#ipA"), ibarA = $("#ibarA"), idots = $("#idots");
+  idots.innerHTML = "<i></i>".repeat(6); const dots = [...idots.children];
+  function blobD(r, amp, t) {
+    const n = 14, p = [];
+    for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, no = Math.sin(7 * 12.9 + i * 1.7) * .6 + Math.sin(7 * 3.1 + i * 3.3) * .4 + Math.sin(t * 2.2 + i) * .25; const rr = r * (1 + amp * no); p.push([rr * Math.cos(a), rr * Math.sin(a)]); }
+    let d = ""; for (let i = 0; i < n; i++) { const c = p[i], nx = p[(i + 1) % n], m = [(c[0] + nx[0]) / 2, (c[1] + nx[1]) / 2]; if (!i) { const pv = p[n - 1]; d += `M${((pv[0] + c[0]) / 2).toFixed(1)} ${((pv[1] + c[1]) / 2).toFixed(1)}`; } d += ` Q${c[0].toFixed(1)} ${c[1].toFixed(1)} ${m[0].toFixed(1)} ${m[1].toFixed(1)}`; }
+    return d + "Z";
+  }
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  function problem(t) {
+    // A
+    let k = t % 10, out = k > 9.4;
+    gbars.forEach((b, i) => { const r = GR[i], p = out ? 0 : seg(k, .3 + i * .75, 1.05 + i * .75); b.style.left = r[1] / 12 * 100 + "%"; b.style.width = r[2] / 12 * 100 * p + "%"; b.classList.toggle("lead", p > 0 && p < 1); });
+    sbi.style.width = (out ? 0 : seg(k, .8, 3) * 100) + "%"; sok.classList.toggle("on", !out && k > 3.1);
+    pscr.classList.toggle("on", !out && k > 1.8); toast.classList.toggle("on", !out && k > 3.2);
+    // B
+    k = t % 10; out = k > 9.5;
+    trows.forEach((r, i) => { const vis = !out && k > .2 + i * .3; r.style.opacity = vis ? "" : 0; r.style.transform = vis ? "" : "translateY(8px)"; r.classList.toggle("off", !out && k > 4 + i * .12); });
+    tnew.classList.toggle("on", !out && k > 4.8);
+    const h = out ? 0 : Math.round(6 * seg(k, .5, 3.5)); hna.textContent = h; hba.style.width = h / 6 * 100 + "%"; hbn.style.width = (out ? 0 : 3 * seg(k, 4.8, 5.3)) + "%";
+    // C
+    k = t % 8; out = k > 7.6;
+    const g = out ? 0 : Math.min(12, Math.floor(seg(k, .3, 2.5) * 12.99)); dcount.textContent = g + " / 12";
+    tiles.forEach((el, i) => { el.className = out ? "" : (k > 3.6 ? (i === 6 ? "gen pick" : "gen dim") : (i < g ? "gen" : "")); });
+    // D
+    k = t % 8; out = k > 7.6;
+    cold.forEach((el, i) => { const a = !out && k > .2 + i * .14 && k < 3.6 + i * .04; el.style.opacity = a ? 1 : 0; el.style.transform = a ? "" : "scale(.94)"; });
+    cnew.forEach((el, i) => { const a = !out && k > 4.3 + i * .7; el.style.opacity = a ? 1 : 0; el.style.transform = a ? "" : "translateY(6px)"; });
+    // E
+    k = t % 8; out = k > 7.6;
+    const hn = out ? 0 : Math.min(6, Math.floor(seg(k, .3, 3.6) * 6.99)), f = 1 - .115 * hn;
+    dots.forEach((d, i) => d.classList.toggle("on", i < hn));
+    ipA.textContent = Math.round(f * 100) + "%"; ibarA.style.width = f * 100 + "%";
+    ibA.setAttribute("d", blobD(17, (1 - f) * .45, t)); ibA.setAttribute("fill", hn ? "#e3e7ec" : "#c8f03c");
+  }
+  /* modal */
+  const pm = $("#pmodal");
+  $$(".pplus").forEach(b => b.addEventListener("click", () => {
+    const c = b.closest(".pcard"); $("#pme").textContent = c.dataset.eb; $("#pmt").textContent = c.querySelector("h3").textContent; $("#pmp").textContent = c.dataset.body;
+    pm.hidden = false; requestAnimationFrame(() => pm.classList.add("on"));
+  }));
+  const closeM = () => { pm.classList.remove("on"); setTimeout(() => (pm.hidden = true), 250); };
+  $("#pmx").addEventListener("click", closeM); pm.addEventListener("click", e => { if (e.target === pm) closeM(); });
+  addEventListener("keydown", e => { if (e.key === "Escape" && !pm.hidden) closeM(); });
+
   /* loop */
   let lastT = 0;
   function frame(t) {
     lastT = t;
     grads.forEach(g => { if (g.vis) grad(g, t); });
-    hero(t); bento(t);
+    hero(t); bento(t); problem(t);
     if (tabAuto && t - tabT > 5) { tabT = t; setTab((tabI + 1) % tabs.length); }
   }
   addEventListener("resize", () => { grads.forEach(sizeG); grads.forEach(g => grad(g, lastT)); });
