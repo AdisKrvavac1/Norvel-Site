@@ -579,7 +579,7 @@ def extras():
     bots = ["Googlebot", "Bingbot", "GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot",
             "PerplexityBot", "Google-Extended", "Applebot", "Applebot-Extended"]
     write("robots.txt", "".join(f"User-agent: {b}\nAllow: /\n\n" for b in bots)
-          + f"User-agent: *\nAllow: /\nDisallow: /404.html\n\nSitemap: {SITE['url']}/sitemap.xml\n")
+          + f"User-agent: *\nAllow: /\nDisallow: /404.html\nDisallow: /concept/\n\nSitemap: {SITE['url']}/sitemap.xml\n")
     proj = "\n".join(f"- [{p['name']} — {p['summary']}]({SITE['url']}/projects/{p['slug']}/): {p['card']}" for p in PROJECTS)
     svc = "\n".join(f"- **{t}**: {d} Includes: {', '.join(x)}." for t, d, x in SERVICES["items"])
     faq = "\n".join(f"- **{q}** {a}" for q, a in FAQS["items"])
@@ -1068,6 +1068,8 @@ if __name__ == "__main__":
         page_post(q)
     page_404()
     extras()
+    import concept
+    concept.main()
     if _PIL is not None:
         json.dump(_MANIFEST, open(_MANIFEST_PATH, "w"), indent=1, sort_keys=True)
     print("Built:", sum(len(f) for _, _, f in os.walk(PUB)), "files in", PUB)
