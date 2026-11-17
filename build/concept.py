@@ -17,6 +17,21 @@ def ver(rel):
     return hashlib.md5(open(os.path.join(PUB, rel), "rb").read()).hexdigest()[:8]
 
 
+def hashed(rel):
+    """Copy assets/concept/x.ext to x.<hash>.ext (the CDN ignores query strings) and return its URL."""
+    import glob
+    import shutil
+    h = ver(rel)
+    base, ext = os.path.splitext(rel)
+    for old in glob.glob(os.path.join(PUB, f"{base}.*{ext}")):
+        if not old.endswith(f".{h}{ext}"):
+            os.remove(old)
+    dst = f"{base}.{h}{ext}"
+    if not os.path.exists(os.path.join(PUB, dst)):
+        shutil.copy(os.path.join(PUB, rel), os.path.join(PUB, dst))
+    return "/" + dst
+
+
 def logo():
     s = open(os.path.join(PUB, "assets/img/norvel-logo-fog.svg")).read()
     s = re.sub(r"<\?xml[^>]*>", "", s)
@@ -158,7 +173,7 @@ def cta():
 
 
 def shell(title, desc, body, active="", with_cta=True):
-    css, js = ver("assets/concept/concept.css"), ver("assets/concept/concept.js")
+    css, js = hashed("assets/concept/concept.css"), hashed("assets/concept/concept.js")
     links = "".join(f'<a href="{u}"{" aria-current=page" if k == active else ""}>{n}</a>' for n, u, k in NAVL)
     html = f"""<!doctype html>
 <html lang="en"><head>
@@ -169,7 +184,7 @@ def shell(title, desc, body, active="", with_cta=True):
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/concept/concept.css?v={css}">
+<link rel="stylesheet" href="{css}">
 </head><body>
 <header class="nav" id="nav"><div class="wrap navin">
   <a href="/" class="brand" aria-label="Norvel home">{logo()}</a>
@@ -190,7 +205,7 @@ def shell(title, desc, body, active="", with_cta=True):
     <div><h6>Contact</h6><a href="/contact/">Start a project</a><a href="mailto:{SITE["email"]}">{SITE["email"]}</a>{"".join(f'<a href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])}</div></div>
   <div class="fbot"><span>© 2026 Norvel Studio</span><span>Concept A — Daylight · not indexed</span></div>
 </div></footer>
-<script src="/assets/concept/concept.js?v={js}" defer></script>
+<script src="{js}" defer></script>
 </body></html>"""
     # keep every internal link inside the concept
     return re.sub(r'href="/(?!concept/|assets/)([^"]*)"', r'href="/concept/\1"', html)
