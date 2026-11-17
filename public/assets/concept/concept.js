@@ -97,7 +97,7 @@
 
   /* persona tabs (auto-advance until the user clicks) */
   const tabs = $$(".ptab"), panes = $$(".ppane"); let tabI = 0, tabAuto = true, tabT = 0;
-  const setTab = i => { tabI = i; tabs.forEach((b, j) => { b.classList.toggle("on", j === i); b.setAttribute("aria-selected", j === i); }); panes.forEach((p, j) => p.classList.toggle("on", j === i)); };
+  const setTab = i => { tabI = i; tabs.forEach((b, j) => { b.classList.toggle("on", j === i); b.setAttribute("aria-selected", j === i); }); panes.forEach((p, j) => p.classList.toggle("on", j === i)); document.querySelectorAll(".pvset").forEach((v, j) => v.classList.toggle("on", j === i)); };
   tabs.forEach((b, i) => b.addEventListener("click", () => { tabAuto = false; setTab(i); }));
 
   /* reveal + counters */

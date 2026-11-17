@@ -579,3 +579,62 @@ body.lock{overflow:hidden}
 .nav.solid:before,.nav.open:before{opacity:1}
 .nav.solid,.nav.open{background:#fff}
 .pmodal[hidden]{display:none!important}
+/* personas — animated visual per option */
+.pvset{position:absolute;inset:0;opacity:0;transition:opacity .5s;pointer-events:none}
+.pvset.on{opacity:1}
+.pvc{position:absolute;background:#fff;border-radius:14px;box-shadow:0 1px 2px rgba(15,23,42,.06),0 24px 48px -18px rgba(15,23,42,.35)}
+.pvbar{height:26px;display:flex;align-items:center;gap:5px;padding:0 10px;border-bottom:1px solid var(--line)}
+.pvbar i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.pvbar span{margin-left:8px;font-size:9.5px;color:var(--muted);background:var(--soft);border-radius:999px;padding:2px 9px}
+.pvl{padding:14px}.pvl i{display:block;height:7px;border-radius:4px;background:var(--line);margin-bottom:8px}
+.pvl i.h{height:14px;width:70%;background:var(--ink)}.pvl i.h.lime{background:var(--lime);width:40%}
+.pvl i.w60{width:60%}.pvl i.g{height:54px;border-radius:8px;background:linear-gradient(120deg,#9fd8ff,#c8f03c,#6ef2c9)}
+.pvl i.btnx{width:90px;height:22px;border-radius:999px;background:var(--ink);margin-top:12px}
+.pv-chip{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;padding:9px 13px;border-radius:999px;right:9%;bottom:12%}
+.pv-chip b{width:18px;height:18px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-size:10px}
+.pvset.on .pv-chip{animation:pvPop 6s infinite both}
+@keyframes pvPop{0%,30%{opacity:0;transform:translateY(10px) scale(.95)}40%,92%{opacity:1;transform:none}100%{opacity:0}}
+/* marketing: pages slide in */
+.pv-lp{left:22%;top:14%;width:58%}
+.pv-lp2{left:34%;top:38%;width:52%}
+.pvset.on .pv-lp{animation:pvIn 6s infinite both}
+.pvset.on .pv-lp2{animation-delay:.6s}
+@keyframes pvIn{0%{opacity:0;transform:translateY(24px)}12%,92%{opacity:1;transform:none}100%{opacity:0}}
+/* founder: mark + site */
+.pv-mark{left:20%;top:16%;width:150px;padding:16px;text-align:center}
+.pv-mark small{font-size:10px;color:var(--muted)}
+.pvm{position:relative;width:70px;height:70px;margin:0 auto 10px;background:var(--ink);border-radius:16px;overflow:hidden}
+.pvm i{position:absolute;background:var(--lime)}
+.pvm i:nth-child(1){left:14px;top:14px;width:12px;height:42px;transform-origin:bottom}
+.pvm i:nth-child(2){right:14px;top:14px;width:12px;height:42px}
+.pvm i:nth-child(3){left:22px;top:12px;width:12px;height:50px;transform:skewX(-24deg)}
+.pvset.on .pvm i{animation:pvMark 3s infinite ease-in-out}
+.pvset.on .pvm i:nth-child(2){animation-delay:.2s}.pvset.on .pvm i:nth-child(3){animation-delay:.4s}
+@keyframes pvMark{0%,100%{opacity:.25}35%,70%{opacity:1}}
+.pv-site{left:40%;top:34%;width:50%}
+.pvset.on .pv-site{animation:pvIn 6s infinite both .4s}
+/* growing company: design system */
+.pv-ds{left:22%;top:14%;width:62%;padding:16px}
+.pv-ds small{font-size:10px;color:var(--muted)}
+.sw{display:flex;gap:6px;margin:10px 0 12px}.sw i{flex:1;height:28px;border-radius:7px;background:#0b0e13}
+.sw i:nth-child(2){background:#c8f03c}.sw i:nth-child(3){background:#6ef2c9}.sw i:nth-child(4){background:#9fd8ff}.sw i:nth-child(5){background:#e3e7ec}
+.ty{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ty b{font-size:28px;letter-spacing:-.03em}.ty span{font-size:10px;color:var(--muted)}
+.bt{display:flex;gap:6px;margin-top:12px}.bt i{height:22px;border-radius:999px;background:var(--ink);width:70px}
+.bt i:nth-child(2){background:#fff;box-shadow:inset 0 0 0 1.5px var(--ink)}.bt i:nth-child(3){background:var(--lime);width:50px}
+.pvset.on .sw i,.pvset.on .bt i{animation:pvIn 6s infinite both}
+.pvset.on .sw i:nth-child(2){animation-delay:.1s}.pvset.on .sw i:nth-child(3){animation-delay:.2s}.pvset.on .sw i:nth-child(4){animation-delay:.3s}.pvset.on .sw i:nth-child(5){animation-delay:.4s}
+.pvset.on .bt i:nth-child(1){animation-delay:.8s}.pvset.on .bt i:nth-child(2){animation-delay:.9s}.pvset.on .bt i:nth-child(3){animation-delay:1s}
+/* mobile: tabs as a 3-up segmented control, visual as a band under the copy */
+@media(max-width:760px){
+ .ptabs{overflow:visible}
+ .ptab{flex:1;white-space:normal;padding:14px 8px;font-size:13px;line-height:1.25;text-align:center}
+ .ppanes{min-height:0;display:grid;grid-template-columns:1fr}
+ .ppane{padding:28px 24px 8px}
+ .ppane p{margin-bottom:22px}
+ .pviz{display:block;grid-column:1;grid-row:2;height:300px;clip-path:polygon(0 14%,100% 0,100% 100%,0 100%)}
+ .pv-lp{left:8%;width:70%;top:20%}.pv-lp2{left:24%;width:68%;top:44%}
+ .pv-mark{left:8%;top:22%}.pv-site{left:40%;top:38%;width:56%}
+ .pv-ds{left:8%;width:84%;top:20%}
+ .pv-chip{right:6%;bottom:8%}
+}

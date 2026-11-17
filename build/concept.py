@@ -266,7 +266,16 @@ def home():
 
 <section class="sec" id="who"><div class="wrap">
   <div class="eyebrow">{e(PERSONAS["eyebrow"])}</div><h2>{e(PERSONAS["title"])}</h2>
-  <div class="persona" data-rv><div class="ptabs" role="tablist">{tabs}</div><div class="ppanes">{panes}<div class="pviz" aria-hidden="true"><canvas class="gcv" data-pal="a"></canvas></div></div></div>
+  <div class="persona" data-rv><div class="ptabs" role="tablist">{tabs}</div><div class="ppanes">{panes}<div class="pviz" aria-hidden="true"><canvas class="gcv"></canvas>
+    <div class="pvset on" data-i="0"><div class="pvc pv-lp"><div class="pvbar"><i></i><i></i><i></i><span>campaign / spring-launch</span></div><div class="pvl"><i class="h"></i><i></i><i class="w60"></i><i class="g"></i></div></div>
+      <div class="pvc pv-lp pv-lp2"><div class="pvbar"><i></i><i></i><i></i><span>/webinar</span></div><div class="pvl"><i class="h"></i><i></i><i class="g"></i></div></div>
+      <div class="pvc pv-chip"><b>✓</b>3 pages live this week</div></div>
+    <div class="pvset" data-i="1"><div class="pvc pv-mark"><div class="pvm"><i></i><i></i><i></i></div><small>Brand mark · v3</small></div>
+      <div class="pvc pv-site"><div class="pvbar"><i></i><i></i><i></i><span>yourstartup.com</span></div><div class="pvl"><i class="h lime"></i><i></i><i class="w60"></i><i class="btnx"></i></div></div>
+      <div class="pvc pv-chip"><b>✓</b>Launch day · week 4</div></div>
+    <div class="pvset" data-i="2"><div class="pvc pv-ds"><small>Design system</small><div class="sw"><i></i><i></i><i></i><i></i><i></i></div><div class="ty"><b>Aa</b><span>Display · Heading · Body</span></div><div class="bt"><i></i><i></i><i></i></div></div>
+      <div class="pvc pv-chip"><b>✓</b>Retainer · sprint 12 shipped</div></div>
+  </div></div></div>
 </div></section>
 
 <section class="sec stats-sec"><div class="wrap"><div class="stats">
