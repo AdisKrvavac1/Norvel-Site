@@ -186,6 +186,63 @@
     $$("input, textarea", form).forEach(f => f.addEventListener("input", () => f.closest(".field") && f.closest(".field").classList.remove("is-invalid")));
   });
 
+  /* Hero dot field: dots part and glow lime around the pointer; tap sends a ripple */
+  const canvas = $(".hero-dots");
+  if (canvas && canvas.getContext) {
+    const ctx = canvas.getContext("2d");
+    const hero = canvas.parentElement;
+    const GAP = 24, R = 210, PUSH = 26;
+    let W = 0, H = 0, dpr = 1, dots = [], mx = -9999, my = -9999, ripples = [], running = false, visible = true, t0 = performance.now();
+    const build = () => {
+      const r = canvas.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = r.width; H = r.height;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      dots = [];
+      const ox = (W % GAP) / 2, oy = (H % GAP) / 2;
+      for (let y = oy; y < H; y += GAP) for (let x = ox; x < W; x += GAP) dots.push({ x, y, dx: 0, dy: 0, a: 0 });
+    };
+    const draw = now => {
+      const t = (now - t0) / 1000;
+      ctx.clearRect(0, 0, W, H);
+      ripples = ripples.filter(rp => now - rp.t < 1600);
+      for (const d of dots) {
+        let tx = 0, ty = 0, glow = 0;
+        const vx = d.x - mx, vy = d.y - my, dist = Math.hypot(vx, vy);
+        if (dist < R) {
+          const f = 1 - dist / R, k = f * f;
+          tx += (vx / (dist || 1)) * PUSH * k; ty += (vy / (dist || 1)) * PUSH * k; glow = Math.max(glow, k);
+        }
+        for (const rp of ripples) {
+          const age = (now - rp.t) / 1000, front = age * 520, dd = Math.hypot(d.x - rp.x, d.y - rp.y), band = Math.abs(dd - front);
+          if (band < 60) { const k = (1 - band / 60) * (1 - age / 1.6); tx += ((d.x - rp.x) / (dd || 1)) * 14 * k; ty += ((d.y - rp.y) / (dd || 1)) * 14 * k; glow = Math.max(glow, k); }
+        }
+        if (!reduce) { ty += Math.sin(d.x * 0.012 + t * 0.9) * 1.6 + Math.cos(d.y * 0.015 + t * 0.6) * 1.2; }
+        d.dx += (tx - d.dx) * 0.14; d.dy += (ty - d.dy) * 0.14; d.a += (glow - d.a) * 0.12;
+        const a = d.a;
+        ctx.beginPath();
+        ctx.arc(d.x + d.dx, d.y + d.dy, 1.15 + a * 2.2, 0, 6.2832);
+        ctx.fillStyle = a > 0.03 ? `rgba(200,240,60,${0.35 + a * 0.65})` : "rgba(238,241,244,0.24)";
+        ctx.fill();
+      }
+      if (running) requestAnimationFrame(draw);
+    };
+    const start = () => { if (!running && visible) { running = true; requestAnimationFrame(draw); } };
+    const stop = () => { running = false; };
+    build();
+    if (reduce) { draw(performance.now()); }
+    else {
+      start();
+      hero.addEventListener("pointermove", e => { const r = canvas.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
+      hero.addEventListener("pointerleave", () => { mx = my = -9999; });
+      hero.addEventListener("pointerdown", e => { const r = canvas.getBoundingClientRect(); ripples.push({ x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() }); });
+      if ("IntersectionObserver" in window) new IntersectionObserver(([en]) => { visible = en.isIntersecting; visible ? start() : stop(); }).observe(canvas);
+      document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+    }
+    let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { build(); if (reduce) draw(performance.now()); }, 150); });
+  }
+
   /* Footer year */
   $$("[data-year]").forEach(el => (el.textContent = new Date().getFullYear()));
 })();

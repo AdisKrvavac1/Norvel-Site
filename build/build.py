@@ -345,6 +345,7 @@ def page_home():
     body = f"""{nav()}
 <main id="main">
   <section class="hero">
+    <canvas class="hero-dots" aria-hidden="true"></canvas>
     <div class="container">
       <div class="hero-head">
         <div class="hero-glow" aria-hidden="true"></div>
