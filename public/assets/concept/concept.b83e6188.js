@@ -9,8 +9,10 @@
   const nav = $("#nav");
   const onScroll = () => nav.classList.toggle("solid", scrollY > 20);
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
-  $("#burger").addEventListener("click", () => nav.classList.toggle("open"));
-  $$("#mnav a").forEach(a => a.addEventListener("click", () => nav.classList.remove("open")));
+  const setMenu = o => { nav.classList.toggle("open", o); document.documentElement.classList.toggle("lock", o); $("#burger").setAttribute("aria-expanded", o); };
+  $("#burger").addEventListener("click", () => setMenu(!nav.classList.contains("open")));
+  $$("#mnav a").forEach(a => a.addEventListener("click", () => setMenu(false)));
+  addEventListener("resize", () => { if (innerWidth > 760) setMenu(false); });
 
   /* moving mesh gradients (low-res canvas, upscaled = free blur) */
   const PAL = ["#9fd8ff", "#c8f03c", "#6ef2c9", "#d4c2ff", "#e9ff7a"];
