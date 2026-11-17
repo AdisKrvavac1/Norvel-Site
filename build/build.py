@@ -194,7 +194,7 @@ def head(title, desc, path, ld=None, crumbs=None, og_type="website", og_image=No
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{e(full)}</title>
 <meta name="description" content="{e(desc)}">
 <link rel="canonical" href="{SITE['url']}{path}">
