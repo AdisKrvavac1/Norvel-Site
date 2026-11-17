@@ -274,6 +274,7 @@ def footer():
   </div>
 </footer>
 <script src="/assets/js/main.js?v={_ver('assets/js/main.js')}" defer></script>
+<script src="/assets/js/process.js?v={_ver('assets/js/process.js')}" defer></script>
 </body>
 </html>
 """
@@ -374,8 +375,10 @@ def page_home():
           <h2 class="h2 strike-wrap">{e(PROBLEM['title_a'])} <span class="strike">{e(PROBLEM['strike'])}</span> {e(PROBLEM['title_b'])}</h2></div>
         <p data-fade>{e(PROBLEM['lead'])}</p>
       </div>
-      <div class="about-body">
-        <div class="about-visual" data-fade><img src="{about_img}" alt="" loading="lazy" width="800" height="600"></div>
+    </div>
+    <div class="proc proc--band" data-theme="light" data-fade><div class="proc-stage"></div></div>
+    <div class="container">
+      <div class="about-body about-body--full">
         <div class="about-rows">{rows}</div>
       </div>
       <div class="work-all"><a class="btn" href="/about/">More about Norvel<span class="btn-ico">{ARROW_UR}</span></a></div>
@@ -717,8 +720,10 @@ def page_about():
           <h2 class="h2 strike-wrap">{e(PROBLEM['title_a'])} <span class="strike">{e(PROBLEM['strike'])}</span> {e(PROBLEM['title_b'])}</h2></div>
         <p data-fade>{e(PROBLEM['lead'])}</p>
       </div>
-      <div class="about-body">
-        <div class="about-visual" data-fade><img src="/assets/work/about.svg" alt="" loading="lazy" width="800" height="600"></div>
+    </div>
+    <div class="proc proc--band" data-theme="light" data-fade><div class="proc-stage"></div></div>
+    <div class="container">
+      <div class="about-body about-body--full">
         <div class="about-rows">{rows}</div>
       </div>
     </div>
