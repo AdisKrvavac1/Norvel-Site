@@ -228,7 +228,7 @@ def page_contact():
 
 
 def post_art(q):
-    return f'<div class="postart" aria-hidden="true"><div class="pgr pgr-c"></div><div class="mk pa-card"><h6>{e(q["category"])}</h6><p>{e(q["read"])}</p><div class="pa-l"><i></i><i></i><i style="width:60%"></i></div></div></div>'
+    return f'<div class="postart" aria-hidden="true"><div class="pgr pgr-c"></div><div class="mk pa-card"><strong class="h6">{e(q["category"])}</strong><p>{e(q["read"])}</p><div class="pa-l"><i></i><i></i><i style="width:60%"></i></div></div></div>'
 
 
 def page_insights():

@@ -249,14 +249,23 @@
 
   /* loop */
   let lastT = 0;
-  function frame(t) {
-    lastT = t;
-    grads.forEach(g => { if (g.vis) grad(g, t); });
-    HERO && HERO(t); BENTO && BENTO(t); PROB && PROB(t);
+  /* only animate what is on screen */
+  const seen = { hero: true, bento: false, prob: false };
+  if ("IntersectionObserver" in window) {
+    const watch = (sel, key) => { const el = $(sel); if (!el) return; new IntersectionObserver(([en]) => { seen[key] = en.isIntersecting; }, { rootMargin: "100px" }).observe(el); };
+    watch(".hero .stage", "hero"); watch(".bento", "bento"); watch(".pgrid", "prob");
+  } else { seen.bento = seen.prob = true; }
+  let fN = 0;
+  function frame(t, force) {
+    lastT = t; fN++;
+    if (force || fN % 2 === 0) grads.forEach(g => { if (g.vis) grad(g, t); });   // gradients at ~30 fps
+    if (HERO && (force || seen.hero)) HERO(t);
+    if (BENTO && (force || seen.bento)) BENTO(t);
+    if (PROB && (force || seen.prob)) PROB(t);
     if (tabs.length && tabAuto && t - tabT > 5) { tabT = t; setTab((tabI + 1) % tabs.length); }
   }
   addEventListener("resize", () => { grads.forEach(sizeG); grads.forEach(g => grad(g, lastT)); });
-  if (!isNaN(FIX)) { $$(".row").forEach(r => (r.style.animation = "none")); tabAuto = false; frame(FIX); }
-  else if (reduce) frame(5.8);
-  else { const t0 = performance.now(); (function L(n) { requestAnimationFrame(L); try { frame(Math.max(0, (n - t0) / 1000)); } catch (err) { console.error(err); } })(t0); }
+  if (!isNaN(FIX)) { $$(".row").forEach(r => (r.style.animation = "none")); tabAuto = false; frame(FIX, true); }
+  else if (reduce) frame(5.8, true);
+  else { const t0 = performance.now(); (function L(n) { requestAnimationFrame(L); if (document.hidden) return; try { frame(Math.max(0, (n - t0) / 1000)); } catch (err) { console.error(err); } })(t0); }
 })();

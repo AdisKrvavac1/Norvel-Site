@@ -42,6 +42,11 @@ ARROW = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><pat
 WORK = ["hp-workforce-experience", "gyde-health", "playground"]
 
 
+def _pic(src, alt, sizes):
+    import build as B
+    return B.pic(src, alt, sizes=sizes)
+
+
 def work_cards():
     by = {p["slug"]: p for p in PROJECTS}
     out = []
@@ -49,7 +54,7 @@ def work_cards():
         p = by[s]
         cls = "w-big" if i == 0 else "w-sm"
         out.append(f'''<a class="wcard {cls}" href="/projects/{s}/" data-rv>
-  <div class="wimg"><img src="/assets/work/{s}/01-1400.webp" alt="{e(p["name"])} — {e(p["summary"])}" loading="lazy"></div>
+  <div class="wimg">{_pic(f"/assets/work/{s}/01.jpg", p["name"] + " — " + p["summary"], "(max-width: 760px) 100vw, 700px")}</div>
   <div class="wmeta"><span class="tag">{e(p["category"])}</span><h3>{e(p["name"])}</h3><p>{e(p["card"])}</p><span class="more">View case study {ARROW}</span></div>
 </a>''')
     return "".join(out)
@@ -62,7 +67,7 @@ def services_bento():
   <div class="b c3" data-rv><h3>{e(w_t)}</h3><p>{e(w_d)}</p><div class="viz"><div class="frames" id="frames"></div></div></div>
   <div class="b c3" data-rv><h3>{e(d_t)}</h3><p>{e(d_d)}</p><div class="viz"><div class="dev"><div class="code" id="code"></div><div class="prev"><div class="mini"><i class="h"></i><i></i><i style="width:60%"></i><i class="g"></i></div><span class="pub" id="pub">Published</span></div></div></div></div>
   <div class="b c4" data-rv><h3>AI explores. Seniors decide.</h3><p>Ten directions in the time an agency books a kickoff — then one senior call.</p><div class="viz vizai"><div class="pgr pgr-c"></div><div class="sc" data-w="470" data-h="230">
-    <div class="mk aip"><h6>Brief</h6><p class="aitype" id="aitype"></p><div class="aibar"><i id="aibar"></i></div><small id="aistat">Waiting for brief…</small></div>
+    <div class="mk aip"><strong class="h6">Brief</strong><p class="aitype" id="aitype"></p><div class="aibar"><i id="aibar"></i></div><small id="aistat">Waiting for brief…</small></div>
     <div class="aig" id="aig"></div>
     <div class="aicur" id="aicur"><svg width="16" height="16" viewBox="0 0 18 18"><path d="M2 1l13 7-6 1.6L6.4 16z" fill="#0b0e13" stroke="#fff" stroke-width="1.2"/></svg><em>Senior designer</em></div>
     <div class="mk aiok" id="aiok"><b>✓</b>Direction 07 · approved</div>
@@ -120,20 +125,20 @@ SCENES = {
   <div class="mk gantt"><div class="mkbar"><i></i><i></i><i></i><span>agency-project · timeline</span></div>
     <div class="gw"><span></span>""" + "".join(f"<em>W{i}</em>" for i in range(1, 13)) + """</div>
     <div class="grows" id="grows"></div></div>
-  <div class="mk sprint" id="sprint"><h6>Norvel sprint</h6><p>Brief → live</p><div class="sbar"><i id="sbi"></i></div><div class="srow"><span>W1</span><span>W2</span><b class="chipok" id="sok">Shipped ✓</b></div></div>
+  <div class="mk sprint" id="sprint"><strong class="h6">Norvel sprint</strong><p>Brief → live</p><div class="sbar"><i id="sbi"></i></div><div class="srow"><span>W1</span><span>W2</span><b class="chipok" id="sok">Shipped ✓</b></div></div>
   <div class="phone"><div class="pscr" id="pscr"><i class="p1"></i><i class="p2"></i><i class="p3"></i><i class="p4"></i><i class="p5"></i>
     <div class="toast" id="toast"><b>✓</b>Live · week 2</div></div></div>
 </div>""",
     "pb": """<div class="sc" data-w="360" data-h="440">
   <div class="pgr pgr-b"></div>
-  <div class="mk team"><h6>Your project team</h6><div id="troles"></div><div class="trow tnew" id="tnew"><span class="av lime">N</span><div><b>Norvel senior team</b><small>Strategy · design · build</small></div><em class="dl">Direct line</em></div></div>
-  <div class="mk hand"><h6>Hand-offs per project</h6>
+  <div class="mk team"><strong class="h6">Your project team</strong><div id="troles"></div><div class="trow tnew" id="tnew"><span class="av lime">N</span><div><b>Norvel senior team</b><small>Strategy · design · build</small></div><em class="dl">Direct line</em></div></div>
+  <div class="mk hand"><strong class="h6">Hand-offs per project</strong>
     <div class="hb"><span>Agency</span><div class="ht"><i id="hba"></i></div><b id="hna">0</b></div>
     <div class="hb"><span>Norvel</span><div class="ht"><i id="hbn" class="lime"></i></div><b>0</b></div></div>
 </div>""",
     "pc": """<div class="sc" data-w="360" data-h="250">
   <div class="pgr pgr-c"></div>
-  <div class="mk dirs"><div class="dhead"><h6>AI explorations</h6><span id="dcount">0 / 12</span></div><div class="dgrid" id="dgrid"></div></div>
+  <div class="mk dirs"><div class="dhead"><strong class="h6">AI explorations</strong><span id="dcount">0 / 12</span></div><div class="dgrid" id="dgrid"></div></div>
 </div>""",
     "pd": """<div class="sc" data-w="360" data-h="250">
   <div class="pgr pgr-d"></div>
@@ -189,7 +194,7 @@ def shell(title, desc, body, active="", with_cta=True):
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"></noscript>
 <link rel="stylesheet" href="{css}">
 </head><body>
 <a class="skip" href="#main">Skip to content</a>
@@ -207,9 +212,9 @@ def shell(title, desc, body, active="", with_cta=True):
 </main>
 <footer class="foot"><div class="wrap">
   <div class="fcols"><div>{logo()}<p>{e(HERO["intro"])}</p></div>
-    <div><h6>Studio</h6><a href="/about/">About</a><a href="/projects/">Work</a><a href="/testimonials/">Testimonials</a><a href="/insights/">Insights</a></div>
-    <div><h6>Services</h6><a href="/services/brand-identity/">Brand &amp; Identity</a><a href="/services/web-design/">Web Design</a><a href="/services/webflow-development/">Webflow Development</a></div>
-    <div><h6>Contact</h6><a href="/contact/">Start a project</a><a href="mailto:{SITE["email"]}">{SITE["email"]}</a>{"".join(f'<a href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])}</div></div>
+    <div><strong class="h6">Studio</strong><a href="/about/">About</a><a href="/projects/">Work</a><a href="/testimonials/">Testimonials</a><a href="/insights/">Insights</a></div>
+    <div><strong class="h6">Services</strong><a href="/services/brand-identity/">Brand &amp; Identity</a><a href="/services/web-design/">Web Design</a><a href="/services/webflow-development/">Webflow Development</a></div>
+    <div><strong class="h6">Contact</strong><a href="/contact/">Start a project</a><a href="mailto:{SITE["email"]}">{SITE["email"]}</a>{"".join(f'<a href="{u}" target="_blank" rel="noopener">{n}</a>' for n, u in SITE["socials"])}</div></div>
   <div class="fbot"><span>© 2026 Norvel Studio</span><span>Designed &amp; built by Norvel</span></div>
 </div></footer>
 <script src="{js}" defer></script>
@@ -236,9 +241,9 @@ def home():
       <div class="card browser"><div class="bar"><i></i><i></i><i></i><span>yourbrand.com</span></div>
         <div class="site" id="site"><div class="blk s1"></div><div class="blk s2"></div><div class="blk s3"></div><div class="blk s4"></div><div class="s5"><div class="blk"></div><div class="blk"></div></div><div class="blk s6"></div>
           <div class="cursor" id="cur"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M2 1l13 7-6 1.6L6.4 16z" fill="#0b0e13" stroke="#fff" stroke-width="1.2"/></svg><em>Senior designer</em></div></div></div>
-      <div class="card deploy" id="dep"><h6>Publishing to Webflow</h6><p>Week 2 · production</p><div class="prog"><i id="pg"></i></div><span class="ok"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7.5l2.6 2.6L11 4" fill="none" stroke="#0b0e13" stroke-width="2" stroke-linecap="round"/></svg></span></div>
-      <div class="card lh"><h6>Lighthouse</h6><p>Performance · A11y · SEO · Best practices</p><div class="rings" id="rings"></div></div>
-      <div class="card ai"><h6>AI explored 12 directions</h6><p>Senior team picked one</p><div class="thumbs" id="th"></div></div>
+      <div class="card deploy" id="dep"><strong class="h6">Publishing to Webflow</strong><p>Week 2 · production</p><div class="prog"><i id="pg"></i></div><span class="ok"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7.5l2.6 2.6L11 4" fill="none" stroke="#0b0e13" stroke-width="2" stroke-linecap="round"/></svg></span></div>
+      <div class="card lh"><strong class="h6">Lighthouse</strong><p>Performance · A11y · SEO · Best practices</p><div class="rings" id="rings"></div></div>
+      <div class="card ai"><strong class="h6">AI explored 12 directions</strong><p>Senior team picked one</p><div class="thumbs" id="th"></div></div>
     </div>
   </div>
   <div class="wrap logos" aria-label="Selected clients"><span>Trusted by teams at</span><b>HP</b><b>a16z</b><b>Lightspeed</b><b>Lagunitas</b><b>Gyde</b><b>Playground</b><b>Hello Cake</b></div>
